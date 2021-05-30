@@ -5,6 +5,25 @@ import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
 
+import firebase from "firebase/app";
+
+import "firebase/analytics";
+import "firebase/database";
+import "firebase/auth";
+import "firebase/firestore";
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDxcmAeKdG1WRjfbMElmgfBAWGAKRL2dKI",
+  authDomain: "jack-habit-journal.firebaseapp.com",
+  projectId: "jack-habit-journal",
+  storageBucket: "jack-habit-journal.appspot.com",
+  messagingSenderId: "222937404677",
+  appId: "1:222937404677:web:b7cd36ed880ca8873a136c",
+  measurementId: "G-HW3NXYKPSH",
+};
+firebase.initializeApp(firebaseConfig);
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
