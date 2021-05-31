@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
-import "bootstrap/dist/css/bootstrap.min.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
 import { Provider } from "react-redux";
 import store from "./store";
 
@@ -14,6 +14,8 @@ import "firebase/analytics";
 import "firebase/database";
 import "firebase/auth";
 import "firebase/firestore";
+import * as firebaseui from "firebaseui";
+import "firebaseui/dist/firebaseui.css";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -27,6 +29,32 @@ const firebaseConfig = {
 };
 // firebase initialization
 firebase.initializeApp(firebaseConfig);
+
+// firebaseui config
+const handleUIError = () => {};
+export const uiConfig = {
+  callbacks: {
+    signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+      var user = authResult.user;
+      // var credential = authResult.credential;
+      // var isNewUser = authResult.additionalUserInfo.isNewUser;
+      // var providerId = authResult.additionalUserInfo.providerId;
+      // var operationType = authResult.operationType;
+      console.log(user);
+      return false;
+    },
+  },
+  signInFlow: "popup",
+  signInSuccessUrl: "./",
+  signInOptions: [
+    firebase.auth.EmailAuthProvider.PROVIDER_ID,
+    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+  ],
+};
+
+// Initialize the FirebaseUI Widget using Firebase.
+export const ui = new firebaseui.auth.AuthUI(firebase.auth());
+ui.start("#firebaseui-auth-container", uiConfig);
 
 ReactDOM.render(
   <React.StrictMode>

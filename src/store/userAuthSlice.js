@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import firebase from "firebase/app";
 
 const initialState = {
   isLoggedIn: false,
@@ -16,6 +17,7 @@ const userAuthSlice = createSlice({
     },
     logout(state) {
       state.isLoggedIn = false;
+      firebase.auth().signOut();
     },
     setDisplayName(state, action) {
       state.displayName = action.payload;
