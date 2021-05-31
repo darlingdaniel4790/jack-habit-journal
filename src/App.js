@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button, Container, Image } from "react-bootstrap";
 import classes from "./App.module.css";
 import icon from "./assets/logo512.png";
@@ -54,8 +54,11 @@ function App() {
 
   const output = loggedIn ? (
     <>
-      <p>Welcome.</p>
-      <Button variant="outlined" onClick={dispatch(userAuthActions.logout())}>
+      <h3>Welcome.</h3>
+      <Button
+        variant="outline-primary"
+        onClick={() => dispatch(userAuthActions.logout())}
+      >
         Logout
       </Button>
     </>
@@ -63,10 +66,8 @@ function App() {
     <>
       <Image src={icon} style={{ width: 200, height: 200 }} />
       <Container className={classes["login-container"]}>
-        <h3>
-          Welcome to the Jack Habit Journal. <br />
-          Choose your preferred signin method to continue.
-        </h3>
+        <h2>Welcome to the Jack Habit Journal.</h2>
+        <p> Choose your preferred signin method to continue.</p>
         <div id="firebaseui-auth-container"></div>
       </Container>
     </>

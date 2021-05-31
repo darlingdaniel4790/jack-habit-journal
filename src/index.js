@@ -31,7 +31,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // firebaseui config
-const handleUIError = () => {};
 export const uiConfig = {
   callbacks: {
     signInSuccessWithAuthResult: function (authResult, redirectUrl) {
