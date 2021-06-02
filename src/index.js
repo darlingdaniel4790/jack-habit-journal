@@ -4,8 +4,6 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
-import { Provider } from "react-redux";
-import store from "./store";
 
 // firebase imports
 import firebase from "firebase/app";
@@ -33,12 +31,12 @@ firebase.initializeApp(firebaseConfig);
 export const uiConfig = {
   callbacks: {
     signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-      var user = authResult.user;
+      // var user = authResult.user;
       // var credential = authResult.credential;
       // var isNewUser = authResult.additionalUserInfo.isNewUser;
       // var providerId = authResult.additionalUserInfo.providerId;
       // var operationType = authResult.operationType;
-      console.log(user);
+      console.log(authResult);
       return false;
     },
   },
@@ -56,9 +54,7 @@ ui.start("#firebaseui-auth-container", uiConfig);
 
 ReactDOM.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 );

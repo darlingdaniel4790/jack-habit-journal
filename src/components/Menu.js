@@ -21,8 +21,6 @@ import HistoryIcon from "@material-ui/icons/History";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import DailyStepper from "../pages/DailyStepper";
 import History from "../pages/History";
-import { useDispatch } from "react-redux";
-import { userAuthActions } from "../store/userAuthSlice";
 
 const drawerWidth = 240;
 
@@ -84,8 +82,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function PersistentDrawerLeft() {
-  const dispatch = useDispatch();
+export default function PersistentDrawerLeft(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -168,7 +165,7 @@ export default function PersistentDrawerLeft() {
           </List>
           <Divider />
           <List>
-            <ListItem button onClick={() => dispatch(userAuthActions.logout())}>
+            <ListItem button onClick={() => props.handleLogout()}>
               <ListItemIcon>
                 <ExitToAppIcon />
               </ListItemIcon>
@@ -184,7 +181,7 @@ export default function PersistentDrawerLeft() {
         >
           <div className={classes.drawerHeader} />
           <Switch>
-            <Route path="/daily-stepper">
+            <Route path={["/", "/daily-stepper"]}>
               <DailyStepper />
             </Route>
             <Route path="/history">

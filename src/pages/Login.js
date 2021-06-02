@@ -1,28 +1,10 @@
 import React from "react";
 import icon from "../assets/logo512.png";
-import firebase from "firebase/app";
-import { ui, uiConfig } from "../";
-import { useDispatch } from "react-redux";
-import { userAuthActions } from "../store/userAuthSlice";
-import { useSelector } from "react-redux";
 import { Box, Container } from "@material-ui/core";
 
 const Login = (props) => {
-  const loggedIn = useSelector((state) => state.userAuth.isLoggedIn);
-  const dispatch = useDispatch();
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      dispatch(userAuthActions.login());
-      console.log(user);
-    } else {
-      if (!loggedIn) {
-        ui.start("#firebaseui-auth-container", uiConfig);
-      }
-    }
-  });
-
   return (
-    <>
+    <div style={{ display: `${props.display}` }}>
       <Box
         component="img"
         alt="jack-habbit-logo"
@@ -34,10 +16,8 @@ const Login = (props) => {
         <p> Choose your preferred signin method to continue.</p>
         <div id="firebaseui-auth-container"></div>
       </Container>
-    </>
+    </div>
   );
 };
-
-Login.propTypes = {};
 
 export default Login;
