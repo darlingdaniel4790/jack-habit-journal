@@ -1,12 +1,10 @@
-import { Box, Grid, Typography } from "@material-ui/core";
+import { Grid, Typography } from "@material-ui/core";
 import React from "react";
 
 const DailyStepper = (props) => {
   return (
     <Grid container>
-      <Typography component="div">
-        <Box fontSize="h3">Daily Stepper</Box>
-      </Typography>
+      <Typography variant="h4">Daily Stepper</Typography>
     </Grid>
   );
 };

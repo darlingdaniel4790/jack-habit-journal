@@ -1,7 +1,12 @@
+import { Grid, Typography } from "@material-ui/core";
 import React from "react";
 
 const History = (props) => {
-  return <div>History</div>;
+  return (
+    <Grid container>
+      <Typography variant="h4">History</Typography>
+    </Grid>
+  );
 };
 
 History.propTypes = {};

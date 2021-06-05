@@ -1,11 +1,5 @@
 .login-container {
   text-align: center;
-  width: 80%;
-}
-@media (min-width: 600px) {
-  .login-container {
-    width: 60%;
-  }
 }
 
 .app {

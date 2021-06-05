@@ -14,13 +14,17 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import MenuIcon from "@material-ui/icons/Menu";
 import clsx from "clsx";
-import React from "react";
+import React, { useState } from "react";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import TodayIcon from "@material-ui/icons/Today";
 import HistoryIcon from "@material-ui/icons/History";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import DailyStepper from "../pages/DailyStepper";
 import History from "../pages/History";
+import { useCookies } from "react-cookie";
+import Consent from "../pages/Consent";
+import { Grid } from "@material-ui/core";
+import { Brightness3, Brightness5 } from "@material-ui/icons";
 
 const drawerWidth = 240;
 
@@ -33,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    backgroundColor: "gold",
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
@@ -62,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0, 1),
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
   },
   content: {
     flexGrow: 1,
@@ -82,7 +85,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function PersistentDrawerLeft(props) {
+export default function Menu(props) {
+  const [cookies, setCookies] = useCookies(["signed", "theme"]);
+  const [isDarkMode, setIsDarkMode] = useState(() => cookies.theme === "dark");
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -94,6 +99,16 @@ export default function PersistentDrawerLeft(props) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const switchDisplayMode = () => {
+    setIsDarkMode((prevState) => !prevState);
+    if (!isDarkMode) {
+      setCookies("theme", "dark");
+    } else {
+      setCookies("theme", "default");
+    }
+  };
+  const menuTextColor = isDarkMode ? "white" : "initial";
 
   return (
     <div className={classes.root}>
@@ -111,11 +126,12 @@ export default function PersistentDrawerLeft(props) {
             onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
+            disabled={cookies.signed ? false : true}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Jack Habit
+            Jack Habit Journal
           </Typography>
         </Toolbar>
       </AppBar>
@@ -130,6 +146,9 @@ export default function PersistentDrawerLeft(props) {
           }}
         >
           <div className={classes.drawerHeader}>
+            <IconButton onClick={switchDisplayMode}>
+              {isDarkMode ? <Brightness5 /> : <Brightness3 />}
+            </IconButton>
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === "ltr" ? (
                 <ChevronLeftIcon />
@@ -141,7 +160,10 @@ export default function PersistentDrawerLeft(props) {
           <Divider />
           <List>
             <Link
-              style={{ textDecoration: "none", color: "initial" }}
+              style={{
+                textDecoration: "none",
+                color: menuTextColor,
+              }}
               to="/daily-stepper"
             >
               <ListItem button onClick={handleDrawerClose}>
@@ -152,7 +174,7 @@ export default function PersistentDrawerLeft(props) {
               </ListItem>
             </Link>
             <Link
-              style={{ textDecoration: "none", color: "initial" }}
+              style={{ textDecoration: "none", color: menuTextColor }}
               to="/history"
             >
               <ListItem button onClick={handleDrawerClose}>
@@ -171,6 +193,7 @@ export default function PersistentDrawerLeft(props) {
               </ListItemIcon>
               <ListItemText primary="Sign Out" />
             </ListItem>
+            <ListItem></ListItem>
           </List>
         </Drawer>
 
@@ -181,11 +204,17 @@ export default function PersistentDrawerLeft(props) {
         >
           <div className={classes.drawerHeader} />
           <Switch>
-            <Route path={["/", "/daily-stepper"]}>
-              <DailyStepper />
-            </Route>
             <Route path="/history">
               <History />
+            </Route>
+            <Route path={["/", "/daily-stepper"]}>
+              {cookies.signed ? (
+                <DailyStepper />
+              ) : (
+                <Grid container justify="center">
+                  <Consent />
+                </Grid>
+              )}
             </Route>
           </Switch>
         </main>

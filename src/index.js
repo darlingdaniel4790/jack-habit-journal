@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
+import { CookiesProvider } from "react-cookie";
 
 // firebase imports
 import firebase from "firebase/app";
@@ -54,7 +55,9 @@ ui.start("#firebaseui-auth-container", uiConfig);
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <CookiesProvider>
+      <App />
+    </CookiesProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
