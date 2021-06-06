@@ -24,7 +24,7 @@ import History from "../pages/History";
 import { useCookies } from "react-cookie";
 import Consent from "../pages/Consent";
 import { Grid } from "@material-ui/core";
-import { Brightness3, Brightness5 } from "@material-ui/icons";
+import { Brightness3, Brightness7 } from "@material-ui/icons";
 
 const drawerWidth = 240;
 
@@ -68,7 +68,8 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
   },
   content: {
-    flexGrow: 1,
+    height: "100vh",
+    width: "100vw",
     padding: theme.spacing(3),
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
@@ -147,7 +148,7 @@ export default function Menu(props) {
         >
           <div className={classes.drawerHeader}>
             <IconButton onClick={switchDisplayMode}>
-              {isDarkMode ? <Brightness5 /> : <Brightness3 />}
+              {isDarkMode ? <Brightness7 /> : <Brightness3 />}
             </IconButton>
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === "ltr" ? (
@@ -197,11 +198,7 @@ export default function Menu(props) {
           </List>
         </Drawer>
 
-        <main
-          className={clsx(classes.content, {
-            [classes.contentShift]: open,
-          })}
-        >
+        <main className={clsx(classes.content)}>
           <div className={classes.drawerHeader} />
           <Switch>
             <Route path="/history">
