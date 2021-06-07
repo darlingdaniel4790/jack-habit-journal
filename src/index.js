@@ -9,7 +9,7 @@ import { CookiesProvider } from "react-cookie";
 // firebase imports
 import firebase from "firebase/app";
 import "firebase/analytics";
-import "firebase/database";
+// import "firebase/database";
 import "firebase/auth";
 import "firebase/firestore";
 import * as firebaseui from "firebaseui";
@@ -19,14 +19,24 @@ import "firebaseui/dist/firebaseui.css";
 const firebaseConfig = {
   apiKey: "AIzaSyDxcmAeKdG1WRjfbMElmgfBAWGAKRL2dKI",
   authDomain: "jack-habit-journal.firebaseapp.com",
+  databaseURL:
+    "https://jack-habit-journal-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "jack-habit-journal",
   storageBucket: "jack-habit-journal.appspot.com",
   messagingSenderId: "222937404677",
   appId: "1:222937404677:web:b7cd36ed880ca8873a136c",
   measurementId: "G-HW3NXYKPSH",
 };
+
 // firebase initialization
 firebase.initializeApp(firebaseConfig);
+
+export const firestoreDB = firebase.firestore();
+
+// if (window.location === "localhost") {
+//   firestoreDB.useEmulator("localhost", 8080);
+//   databaseDB.useEmulator("localhost", 9000);
+// }
 
 // firebaseui config
 export const uiConfig = {

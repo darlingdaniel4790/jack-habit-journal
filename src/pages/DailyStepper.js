@@ -5,7 +5,8 @@ import Paper from "@material-ui/core/Paper";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
-import React from "react";
+import React, { useEffect } from "react";
+import { firestoreDB } from "..";
 
 const tutorialSteps = [
   {
@@ -65,6 +66,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DailyStepper = (props) => {
+  useEffect(() => {
+    firestoreDB
+      .collection("participants")
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => console.log(doc.id, " => ", doc.data()));
+      });
+
+    return () => {};
+  }, []);
+
   const matches = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   const classes = useStyles();
