@@ -23,7 +23,7 @@ import DailyStepper from "../pages/DailyStepper";
 import History from "../pages/History";
 import { useCookies } from "react-cookie";
 import Consent from "../pages/Consent";
-import { Grid } from "@material-ui/core";
+import { Avatar, Grid } from "@material-ui/core";
 import { Brightness3, Brightness7 } from "@material-ui/icons";
 
 const drawerWidth = 240;
@@ -38,6 +38,9 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
+  toolbar: {
+    justifyContent: "space-between",
+  },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
@@ -47,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     }),
   },
   menuButton: {
-    marginRight: theme.spacing(2),
+    // marginRight: theme.spacing(2),
   },
   hide: {
     display: "none",
@@ -120,7 +123,7 @@ export default function Menu(props) {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar>
+        <Toolbar className={classes.toolbar}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -134,6 +137,10 @@ export default function Menu(props) {
           <Typography variant="h6" noWrap>
             Jack Habit Journal
           </Typography>
+          <Avatar
+            alt={props.userInfo.displayName}
+            src={props.userInfo.photoURL}
+          ></Avatar>
         </Toolbar>
       </AppBar>
       <Router>

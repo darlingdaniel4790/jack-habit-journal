@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import icon from "../assets/logo512.png";
 import { Box, Container, Grid, Typography } from "@material-ui/core";
+import { ui, uiConfig } from "..";
 
 const Login = (props) => {
+  useEffect(() => {
+    ui.start("#firebaseui-auth-container", uiConfig);
+    return () => {};
+  }, []);
   return (
     <Grid
       container

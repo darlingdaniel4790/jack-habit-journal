@@ -4,34 +4,31 @@ import Login from "./pages/Login";
 import Menu from "./components/Menu";
 import { CircularProgress, Grid } from "@material-ui/core";
 import firebase from "firebase/app";
-import { ui, uiConfig } from "./";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
-import { purple } from "@material-ui/core/colors";
 import { useCookies } from "react-cookie";
 
 function App() {
+  console.log("\nAPP.JS RENDERING");
   const [showUI, setShowUI] = useState(false);
-  // console.log("showUI: " + showUI);
   const [loggedIn, setLoggedIn] = useState(false);
-  // console.log("loggedIn: " + loggedIn);
   const [loading, setLoading] = useState(true);
-  if (!loggedIn) ui.start("#firebaseui-auth-container", uiConfig);
+  const [userInfo, setUserInfo] = useState();
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      if (loggedIn) return;
       console.log("auth state changing");
+      if (loggedIn) return;
       if (user) {
-        console.log(user);
-        setShowUI(false);
+        setUserInfo(user);
+        if (showUI) setShowUI(false);
         setLoggedIn(true);
       } else {
-        setShowUI(true);
+        if (!showUI) setShowUI(true);
       }
-      setLoading(false);
+      if (loading) setLoading(false);
     });
-  }, [loggedIn]);
+  });
 
   const handleLogout = () => {
     setLoggedIn(false);
@@ -45,10 +42,10 @@ function App() {
       palette: {
         type: "dark",
         primary: {
-          main: purple[500],
+          main: "#80e2dd",
         },
         secondary: {
-          main: "#11cb5f",
+          main: "#fac82b",
         },
       },
     });
@@ -56,10 +53,10 @@ function App() {
     theme = createMuiTheme({
       palette: {
         primary: {
-          main: purple[500],
+          main: "#80e2dd",
         },
         secondary: {
-          main: "#11cb5f",
+          main: "#fac82b",
         },
       },
     });
@@ -79,8 +76,10 @@ function App() {
             <CircularProgress />
           </Grid>
         )}
-        {!loading && loggedIn && <Menu handleLogout={handleLogout} />}
-        {!loggedIn && (
+        {!loading && loggedIn && (
+          <Menu handleLogout={handleLogout} userInfo={userInfo} />
+        )}
+        {!loggedIn && showUI && (
           <Login
             display={showUI ? "flex" : "none"}
             classes={classes["login-container"]}

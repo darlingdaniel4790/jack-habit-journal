@@ -41,13 +41,7 @@ export const firestoreDB = firebase.firestore();
 // firebaseui config
 export const uiConfig = {
   callbacks: {
-    signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-      // var user = authResult.user;
-      // var credential = authResult.credential;
-      // var isNewUser = authResult.additionalUserInfo.isNewUser;
-      // var providerId = authResult.additionalUserInfo.providerId;
-      // var operationType = authResult.operationType;
-      console.log(authResult);
+    signInSuccessWithAuthResult: function () {
       return false;
     },
   },
