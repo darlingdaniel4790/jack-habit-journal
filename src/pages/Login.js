@@ -5,6 +5,7 @@ import { ui, uiConfig } from "..";
 
 const Login = (props) => {
   useEffect(() => {
+    console.log("starting firebase ui");
     ui.start("#firebaseui-auth-container", uiConfig);
     return () => {};
   }, []);

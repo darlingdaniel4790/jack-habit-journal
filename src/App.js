@@ -9,7 +9,7 @@ import { ThemeProvider } from "@material-ui/styles";
 import { useCookies } from "react-cookie";
 
 function App() {
-  console.log("\nAPP.JS RENDERING");
+  // console.log("\nAPP.JS RENDERING");
   const [showUI, setShowUI] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ function App() {
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      console.log("auth state changing");
+      // console.log("auth state changing");
       if (loggedIn) return;
       if (user) {
         setUserInfo(user);
