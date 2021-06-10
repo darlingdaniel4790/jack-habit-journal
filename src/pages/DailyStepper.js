@@ -1,21 +1,26 @@
 import {
   Box,
+  Checkbox,
   CircularProgress,
   FormControl,
   FormControlLabel,
+  FormGroup,
   Grid,
+  InputLabel,
+  OutlinedInput,
   Radio,
   RadioGroup,
+  TextField,
   Typography,
   useMediaQuery,
 } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Paper from "@material-ui/core/Paper";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import firebase from "firebase/app";
+import { makeStyles } from "@material-ui/core/styles";
 import "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { firestoreDB } from "..";
+import * as photos from "../assets/emotion_images";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,8 +36,8 @@ const useStyles = makeStyles((theme) => ({
     color: "black",
   },
   img: {
-    height: 255,
-    margin: "5rem",
+    height: "170px",
+    margin: "1rem",
   },
   mobileStepper: {
     display: "fixed",
@@ -43,9 +48,11 @@ const useStyles = makeStyles((theme) => ({
   optionsSection: {
     padding: theme.spacing(2),
   },
-  scrollBox: {
+  imageScrollBox: {
+    flex: 1,
     display: "flex",
-    overflowX: "scroll",
+    alignItems: "center",
+    flexDirection: "column",
   },
   stepButtons: {
     bottom: 0,
@@ -55,8 +62,9 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     left: 0,
     bottom: 0,
-    zIndex: 1,
+    zIndex: 999,
     marginBottom: 0,
+    padding: "0 10px",
     justifyContent: "space-between",
   },
   radioFormControl: {
@@ -106,21 +114,19 @@ const DailyStepper = (props) => {
 
   const classes = useStyles();
 
-  // const theme = useTheme();
-  const [activeStep, setActiveStep] = useState(0);
-  const questionsLength = questions.length;
-  const [questionImages, setquestionImages] = useState();
-
+  const [activeStep, setActiveStep] = useState(5);
+  console.log("Daily Stepper rendering");
   const ref = useRef();
   const handleNext = () => {
-    if (activeStep < questionsLength - 1) {
+    if (activeStep < questions.length - 1) {
       ref.current.scrollIntoView({
         behavior: "smooth",
         inline: "nearest",
         block: "end",
       });
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      setquestionImages();
+    } else {
+      // upload data and end the day
     }
   };
 
@@ -145,6 +151,7 @@ const DailyStepper = (props) => {
             matches={matches}
             responses={responses}
             setResponses={setResponses}
+            activeStep={activeStep}
             handleNext={handleNext}
             handleBack={handleBack}
           />
@@ -158,17 +165,29 @@ const DailyStepper = (props) => {
             questions={questions}
             classes={classes}
             matches={matches}
-            questionImages={questionImages}
-            setquestionImages={setquestionImages}
             activeStep={activeStep}
             handleNext={handleNext}
             handleBack={handleBack}
+            responses={responses}
+            setResponses={setResponses}
           />
         );
         break;
 
       // open writing question
       case 3:
+        questionShown = (
+          <QuestionType3
+            questions={questions}
+            classes={classes}
+            matches={matches}
+            activeStep={activeStep}
+            handleNext={handleNext}
+            handleBack={handleBack}
+            responses={responses}
+            setResponses={setResponses}
+          />
+        );
         break;
 
       default:
@@ -189,45 +208,18 @@ const DailyStepper = (props) => {
           <CircularProgress />
         </Grid>
       ) : (
-        <>
-          {questionShown}
-          {/* <Grid
-            ref={ref}
-            container
-            direction="column"
-            style={{
-              height: "85vh",
-              backgroundColor: theme.palette.secondary.main,
-              overflowX: "hidden",
-            }}
-          >
-            <Grid
-              container
-              style={{
-                height: "100%",
-                borderColor: theme.palette.secondary.main,
-                width: "95vw",
-                margin: "20px",
-              }}
-            ></Grid>
-            <Grid
-              container
-              style={{
-                height: "100%",
-                borderColor: theme.palette.primary.main,
-                width: "95vw",
-                margin: "20px",
-              }}
-            ></Grid>
-          </Grid> */}
-        </>
+        <>{questionShown}</>
       )}
     </Grid>
   );
 };
 
 const QuestionType1 = (props) => {
+  console.log("QuestionType1 rendering");
+
   let initialState = [];
+  const [validated, setValidated] = useState(false);
+  // const [checkedCount, setCheckedCount] = useState(0);
   if (props.responses[props.activeStep]) {
     initialState = props.responses[props.activeStep];
   } else {
@@ -240,7 +232,26 @@ const QuestionType1 = (props) => {
   }
   const [responses, setResponses] = useState(initialState);
 
+  if (!validated) {
+    let control = false;
+    responses.every((item) => {
+      if (!item.value) {
+        control = false;
+        return false;
+      }
+      control = true;
+      return true;
+    });
+    if (control) setValidated(control);
+  }
+
   const handleChange = (e) => {
+    // if (checkedCount < props.questions.length) {
+    //   setCheckedCount((prev) => prev + 1);
+    //   if (checkedCount === props.questions.length - 1) {
+    //     setValidated(true);
+    //   }
+    // }
     setResponses((prev) => {
       const newValue = prev;
       newValue[e.target.name].value = e.target.value;
@@ -265,7 +276,6 @@ const QuestionType1 = (props) => {
     });
     props.handleBack();
   };
-
   return (
     <>
       <Grid container className={props.classes.stepButtonsContainer}>
@@ -280,10 +290,10 @@ const QuestionType1 = (props) => {
         <Button
           variant="contained"
           color="primary"
+          // disabled={!validated && !props.responses[props.activeStep]}
           onClick={handleNext}
           className={props.classes.stepButtons}
         >
-          {/* {activeStep < questionsLength - 1 ? "next" : "finish"} */}
           next
         </Button>
       </Grid>
@@ -346,47 +356,118 @@ const QuestionType1 = (props) => {
 };
 
 const QuestionType2 = (props) => {
-  const images = [];
-  let output = "";
-  if (!props.questionImages) {
-    props.questions[props.activeStep].photosURL.forEach((link) => {
-      firebase
-        .storage()
-        .refFromURL(link)
-        .getDownloadURL()
-        .then((url) => {
-          images.push(url);
-          if (
-            images.length ===
-              props.questions[props.activeStep].photosURL.length &&
-            !props.questionImages
-          ) {
-            props.setquestionImages(images);
-            console.log("images set");
-          }
-        });
-    });
-  } else {
-    output = props.questionImages.map((url, index) => {
-      return (
-        <img
-          key={index}
-          className={props.classes.img}
-          src={url}
-          alt={props.questions[props.activeStep].type}
-        />
-      );
-    });
-    console.log(output);
+  // const images = [];
+  // let output = "";
+  // if (!props.questionImages) {
+  //   props.questions[props.activeStep].photosURL.forEach((link) => {
+  //     firebase
+  //       .storage()
+  //       .refFromURL(link)
+  //       .getDownloadURL()
+  //       .then((url) => {
+  //         images.push(url);
+  //         if (
+  //           images.length ===
+  //             props.questions[props.activeStep].photosURL.length &&
+  //           !props.questionImages
+  //         ) {
+  //           props.setquestionImages(images);
+  //           console.log("images set");
+  //         }
+  //       });
+  //   });
+  // } else {
+  //   output = props.questionImages.map((url, index) => {
+  //     return (
+  //       <img
+  //         key={index}
+  //         className={props.classes.img}
+  //         src={url}
+  //         alt={props.questions[props.activeStep].type}
+  //       />
+  //     );
+  //   });
+  //   console.log(output);
+  // }
+  console.log("QuestionType2 rendering");
+
+  let initialState = "x";
+  const [validated, setValidated] = useState(false);
+  const [response, setResponse] = useState(initialState);
+  if (props.responses[props.activeStep]) {
+    if (!response) {
+      initialState = props.responses[props.activeStep];
+    } else if (response === "x") {
+      setResponse(props.responses[props.activeStep]);
+    }
+    if (!validated) setValidated(true);
   }
 
+  const handleChange = (e) => {
+    setValidated(true);
+    setResponse(e.target.value);
+  };
+  const handleNext = () => {
+    props.setResponses((prev) => {
+      const newState = prev;
+      newState[props.activeStep] = response;
+      return newState;
+    });
+    setValidated(false);
+    setResponse("x");
+    props.handleNext();
+  };
+
+  const handleBack = () => {
+    if (validated)
+      props.setResponses((prev) => {
+        const newState = prev;
+        newState[props.activeStep] = response;
+        return newState;
+      });
+    setResponse("x");
+    props.handleBack();
+  };
+
+  let imageRef = [];
+  switch (props.activeStep) {
+    case 1:
+      imageRef = [
+        photos.happy1,
+        photos.happy2,
+        photos.happy3,
+        photos.happy4,
+        photos.happy5,
+      ];
+      break;
+    case 2:
+      imageRef = [
+        photos.arousal1,
+        photos.arousal2,
+        photos.arousal3,
+        photos.arousal4,
+        photos.arousal5,
+      ];
+      break;
+    case 3:
+      imageRef = [
+        photos.control1,
+        photos.control2,
+        photos.control3,
+        photos.control4,
+        photos.control5,
+      ];
+      break;
+
+    default:
+      break;
+  }
   return (
     <>
       <Grid container className={props.classes.stepButtonsContainer}>
         <Button
           variant="contained"
-          onClick={props.handleBack}
-          disabled={props.activeStep < 1}
+          onClick={handleBack}
           className={props.classes.stepButtons}
         >
           back
@@ -394,8 +475,175 @@ const QuestionType2 = (props) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={props.handleNext}
+          onClick={handleNext}
           className={props.classes.stepButtons}
+          disabled={!validated && !props.responses[props.activeStep]}
+        >
+          {/* {activeStep < questionsLength - 1 ? "next" : "finish"} */}
+          next
+        </Button>
+      </Grid>
+      <Paper className={props.classes.header}>
+        <Typography variant="h6">
+          {props.questions[props.activeStep].question}
+          <br />
+          <span style={{ color: "#f44336" }}>
+            {`1 - ${props.questions[props.activeStep].keywords[0]}`}
+          </span>
+          <br />
+          <span style={{ color: "#4caf50" }}>
+            {`9 - ${props.questions[props.activeStep].keywords[1]}`}
+          </span>
+        </Typography>
+      </Paper>
+      <Paper className={props.classes.optionsSection}>
+        <Grid container>
+          <FormControl component="fieldset">
+            <RadioGroup
+              style={{
+                height: "100%",
+                justifyContent: "space-between",
+              }}
+              aria-label="scale"
+              name="scale of 9"
+              value={response}
+              onChange={handleChange}
+            >
+              <FormControlLabel
+                value="1"
+                control={<Radio />}
+                label="1"
+                labelPlacement="start"
+              />
+              <FormControlLabel
+                value="2"
+                control={<Radio />}
+                label="2"
+                labelPlacement="start"
+              />
+              <FormControlLabel
+                value="3"
+                control={<Radio />}
+                label="3"
+                labelPlacement="start"
+              />
+              <FormControlLabel
+                value="4"
+                control={<Radio />}
+                label="4"
+                labelPlacement="start"
+              />
+              <FormControlLabel
+                value="5"
+                control={<Radio />}
+                label="5"
+                labelPlacement="start"
+              />
+              <FormControlLabel
+                value="6"
+                control={<Radio />}
+                label="6"
+                labelPlacement="start"
+              />
+              <FormControlLabel
+                value="7"
+                control={<Radio />}
+                label="7"
+                labelPlacement="start"
+              />
+              <FormControlLabel
+                value="8"
+                control={<Radio />}
+                label="8"
+                labelPlacement="start"
+              />
+              <FormControlLabel
+                value="9"
+                control={<Radio />}
+                label="9"
+                labelPlacement="start"
+              />
+            </RadioGroup>
+          </FormControl>
+          <Box className={props.classes.imageScrollBox}>
+            {imageRef.map((url, key) => {
+              return (
+                <img
+                  key={key}
+                  className={props.classes.img}
+                  src={url}
+                  alt={key}
+                />
+              );
+            })}
+          </Box>
+        </Grid>
+      </Paper>
+    </>
+  );
+};
+const QuestionType3 = (props) => {
+  const [response, setResponse] = useState();
+  const [valid, setValid] = useState(false);
+  const handleChange = (e) => {
+    console.log(e.target.value);
+    validate(e.target.value);
+  };
+
+  const validate = (value) => {
+    let res = [];
+    let str = value.replace(/[\t\n\r\.\?\!]/gm, " ").split(" ");
+    str.map((s) => {
+      let trimStr = s.trim();
+      if (trimStr.length > 0) {
+        res.push(trimStr);
+      }
+    });
+    if (res.length > 29) {
+      setValid(true);
+    } else {
+      setValid(false);
+    }
+  };
+
+  const handleNext = () => {
+    // props.setResponses((prev) => {
+    //   const newState = prev;
+    //   newState[props.activeStep] = response;
+    //   return newState;
+    // });
+    // setValidated(false);
+    // setResponse("x");
+    // props.handleNext();
+  };
+
+  const handleBack = () => {
+    // if (validated)
+    //   props.setResponses((prev) => {
+    //     const newState = prev;
+    //     newState[props.activeStep] = response;
+    //     return newState;
+    //   });
+    // setResponse("x");
+    props.handleBack();
+  };
+
+  return (
+    <>
+      <Grid container className={props.classes.stepButtonsContainer}>
+        <Button
+          variant="contained"
+          onClick={handleBack}
+          className={props.classes.stepButtons}
+        >
+          back
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleNext}
+          className={props.classes.stepButtons}
+          disabled={!valid && !props.responses[props.activeStep]}
         >
           {/* {activeStep < questionsLength - 1 ? "next" : "finish"} */}
           next
@@ -406,83 +654,47 @@ const QuestionType2 = (props) => {
           {props.questions[props.activeStep].question}
         </Typography>
       </Paper>
+      <FormControl fullWidth variant="outlined">
+        {/* <InputLabel htmlFor="journal-entry">My thoughts today</InputLabel> */}
+        <OutlinedInput
+          multiline
+          rows={10}
+          rowsMax={20}
+          id="journal-entry"
+          // value={values.amount}
+          onChange={handleChange}
+          // labelWidth={120}
+        />
+        <Typography variant="caption" display="block" gutterBottom>
+          Minimum 30 words.
+        </Typography>
+      </FormControl>
       <Paper className={props.classes.optionsSection}>
-        <Box
-          className={props.classes.scrollBox}
-          style={{ maxWidth: `${props.matches ? "90vw" : "78vw"}` }}
-        >
-          {output}
-        </Box>
-        <FormControl component="fieldset">
-          <RadioGroup
-            row={props.matches ? true : false}
-            aria-label="scale"
-            name="scale of 9"
-            // value=""
-            // onChange=""
-          >
-            <FormControlLabel
-              value="1"
-              control={<Radio />}
-              label="1"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="2"
-              control={<Radio />}
-              label="2"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="3"
-              control={<Radio />}
-              label="3"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="4"
-              control={<Radio />}
-              label="4"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="5"
-              control={<Radio />}
-              label="5"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="6"
-              control={<Radio />}
-              label="6"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="7"
-              control={<Radio />}
-              label="7"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="8"
-              control={<Radio />}
-              label="8"
-              labelPlacement="start"
-            />
-            <FormControlLabel
-              value="9"
-              control={<Radio />}
-              label="9"
-              labelPlacement="start"
-            />
-          </RadioGroup>
-        </FormControl>
+        <Typography variant="h6" className={props.classes.subHeading}>
+          What did you write about today?
+          <br />
+          (Select all that apply)
+        </Typography>
+        <FormGroup row>
+          {props.questions[props.activeStep].tags.map((tag) => {
+            return (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    // checked={state.checkedB}
+                    // onChange={handleChange}
+                    name={tag}
+                    color="primary"
+                  />
+                }
+                label={tag}
+              />
+            );
+          })}
+        </FormGroup>
       </Paper>
     </>
   );
 };
-// const QuestionType3 = (props) => {
-//   return <p></p>;
-// };
 
 export default DailyStepper;
