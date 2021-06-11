@@ -83,8 +83,8 @@ const questions = [];
 const DailyStepper = (props) => {
   const [responses1, setResponses1] = useState([]);
   const [responses2, setResponses2] = useState([]);
-  console.log(responses1);
-  console.log(responses2);
+  console.log("response1", responses1);
+  console.log("response2", responses2);
   const [loading, setLoading] = useState(true);
   // fetch from firestore
   useEffect(() => {
@@ -230,7 +230,6 @@ const DailyStepper = (props) => {
 const QuestionType1 = (props) => {
   let initialState = [];
   const [validated, setValidated] = useState(false);
-  // const [checkedCount, setCheckedCount] = useState(0);
   if (props.responses[props.activeStep]) {
     initialState = props.responses[props.activeStep];
   } else {
@@ -243,7 +242,7 @@ const QuestionType1 = (props) => {
   }
   const [responses, setResponses] = useState(initialState);
 
-  if (!validated) {
+  const validate = () => {
     let control = false;
     responses.every((item) => {
       if (!item.value) {
@@ -254,15 +253,14 @@ const QuestionType1 = (props) => {
       return true;
     });
     if (control) setValidated(control);
-  }
+  };
+
+  useEffect(() => {
+    console.log("validating");
+    validate();
+  });
 
   const handleChange = (e) => {
-    // if (checkedCount < props.questions.length) {
-    //   setCheckedCount((prev) => prev + 1);
-    //   if (checkedCount === props.questions.length - 1) {
-    //     setValidated(true);
-    //   }
-    // }
     setResponses((prev) => {
       const newValue = prev;
       newValue[e.target.name].value = e.target.value;
@@ -301,11 +299,13 @@ const QuestionType1 = (props) => {
         <Button
           variant="contained"
           color="primary"
-          // disabled={!validated && !props.responses[props.activeStep]}
+          disabled={!validated}
           onClick={handleNext}
           className={props.classes.stepButtons}
         >
-          next
+          {props.centerReached && props.activeStep === questions.length - 2
+            ? "finish"
+            : "next"}
         </Button>
       </Grid>
       <Paper className={props.classes.header}>
@@ -488,7 +488,6 @@ const QuestionType2 = (props) => {
           className={props.classes.stepButtons}
           disabled={!validated && !props.responses[props.activeStep]}
         >
-          {/* {activeStep < questionsLength - 1 ? "next" : "finish"} */}
           next
         </Button>
       </Grid>

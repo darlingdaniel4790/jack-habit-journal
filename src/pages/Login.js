@@ -42,7 +42,6 @@ const Login = (props) => {
       <Grid
         item
         style={{
-          height: "50%",
           display: "flex",
           alignItems: "center",
         }}
