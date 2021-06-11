@@ -81,8 +81,10 @@ const useStyles = makeStyles((theme) => ({
 const questions = [];
 
 const DailyStepper = (props) => {
-  const [responses, setResponses] = useState([]);
-  console.log(responses);
+  const [responses1, setResponses1] = useState([]);
+  const [responses2, setResponses2] = useState([]);
+  console.log(responses1);
+  console.log(responses2);
   const [loading, setLoading] = useState(true);
   // fetch from firestore
   useEffect(() => {
@@ -114,48 +116,33 @@ const DailyStepper = (props) => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [centerReached, setCenterReached] = useState(false);
-  console.log("Daily Stepper rendering");
   const ref = useRef();
-  let storedResponses;
-  console.log(storedResponses);
-  const handleReset = () => {
-    setActiveStep(0);
-    setCenterReached(true);
-    storedResponses = responses;
-    setResponses([]);
-  };
   console.log(activeStep);
   const handleNext = () => {
-    if (centerReached) {
-      if (activeStep < questions.length - 2) {
-        ref.current.scrollIntoView({
-          behavior: "smooth",
-          inline: "nearest",
-          block: "end",
-        });
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      } else {
-        // upload data and end the day
-      }
-    } else {
-      if (activeStep < questions.length - 1) {
-        ref.current.scrollIntoView({
-          behavior: "smooth",
-          inline: "nearest",
-          block: "end",
-        });
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      }
+    if (questions[activeStep].type === 3) {
+      setActiveStep(0);
+      if (!centerReached) setCenterReached(true);
+    } else if (!centerReached) {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    } else if (activeStep < questions.length - 2) {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
+    ref.current.scrollIntoView({
+      behavior: "smooth",
+      inline: "nearest",
+      block: "end",
+    });
   };
 
   const handleBack = () => {
+    if (questions[activeStep].type === 3) {
+      if (centerReached) setCenterReached(false);
+    }
     if (!centerReached) {
       setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    } else if (activeStep === 0) {
-      setActiveStep(questions.length - 1);
     } else {
-      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+      if (activeStep === 0) setActiveStep(questions.length - 1);
+      else setActiveStep((prevActiveStep) => prevActiveStep - 1);
     }
     ref.current.scrollIntoView({
       behavior: "smooth",
@@ -174,8 +161,8 @@ const DailyStepper = (props) => {
             {...questions[activeStep]}
             classes={classes}
             matches={matches}
-            responses={responses}
-            setResponses={setResponses}
+            responses={centerReached ? responses2 : responses1}
+            setResponses={centerReached ? setResponses2 : setResponses1}
             activeStep={activeStep}
             handleNext={handleNext}
             handleBack={handleBack}
@@ -194,8 +181,8 @@ const DailyStepper = (props) => {
             activeStep={activeStep}
             handleNext={handleNext}
             handleBack={handleBack}
-            responses={responses}
-            setResponses={setResponses}
+            responses={centerReached ? responses2 : responses1}
+            setResponses={centerReached ? setResponses2 : setResponses1}
           />
         );
         break;
@@ -210,9 +197,8 @@ const DailyStepper = (props) => {
             activeStep={activeStep}
             handleNext={handleNext}
             handleBack={handleBack}
-            responses={responses}
-            setResponses={setResponses}
-            handleReset={handleReset}
+            responses={responses1}
+            setResponses={setResponses1}
           />
         );
         break;
@@ -242,8 +228,6 @@ const DailyStepper = (props) => {
 };
 
 const QuestionType1 = (props) => {
-  console.log("QuestionType1 rendering");
-
   let initialState = [];
   const [validated, setValidated] = useState(false);
   // const [checkedCount, setCheckedCount] = useState(0);
@@ -416,8 +400,6 @@ const QuestionType2 = (props) => {
   //   });
   //   console.log(output);
   // }
-  console.log("QuestionType2 rendering");
-
   let initialState = "x";
   const [validated, setValidated] = useState(false);
   const [response, setResponse] = useState(initialState);
@@ -615,9 +597,7 @@ const QuestionType3 = (props) => {
   if (props.responses[props.activeStep]) {
     initialState = props.responses[props.activeStep];
     if (!valid) setValid(true);
-    console.log("initial state exists");
   } else {
-    console.log("initial state not there");
     let tagState = props.questions[props.activeStep].tags.map((item) => {
       return {
         name: item,
@@ -627,7 +607,6 @@ const QuestionType3 = (props) => {
     initialState = ["", tagState];
   }
   const [response, setResponse] = useState(initialState);
-  console.log(response);
   const minWords = 5;
   const handleChange = (e) => {
     setResponse((prev) => {
@@ -638,8 +617,6 @@ const QuestionType3 = (props) => {
   };
 
   const handleTagChange = (e) => {
-    console.log(e.target.name, e.target.value);
-    console.log(response[1][e.target.name], response[1][e.target.name].value);
     setResponse((prev) => {
       prev[1][e.target.name].value = !prev[1][e.target.name].value;
       return [...prev];
@@ -669,7 +646,6 @@ const QuestionType3 = (props) => {
       newState[props.activeStep] = response;
       return newState;
     });
-    props.handleReset();
     props.handleNext();
   };
 
