@@ -6,11 +6,9 @@ import {
   FormControlLabel,
   FormGroup,
   Grid,
-  InputLabel,
   OutlinedInput,
   Radio,
   RadioGroup,
-  TextField,
   Typography,
   useMediaQuery,
 } from "@material-ui/core";
@@ -114,29 +112,56 @@ const DailyStepper = (props) => {
 
   const classes = useStyles();
 
-  const [activeStep, setActiveStep] = useState(5);
+  const [activeStep, setActiveStep] = useState(0);
+  const [centerReached, setCenterReached] = useState(false);
   console.log("Daily Stepper rendering");
   const ref = useRef();
+  let storedResponses;
+  console.log(storedResponses);
+  const handleReset = () => {
+    setActiveStep(0);
+    setCenterReached(true);
+    storedResponses = responses;
+    setResponses([]);
+  };
+  console.log(activeStep);
   const handleNext = () => {
-    if (activeStep < questions.length - 1) {
-      ref.current.scrollIntoView({
-        behavior: "smooth",
-        inline: "nearest",
-        block: "end",
-      });
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    if (centerReached) {
+      if (activeStep < questions.length - 2) {
+        ref.current.scrollIntoView({
+          behavior: "smooth",
+          inline: "nearest",
+          block: "end",
+        });
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      } else {
+        // upload data and end the day
+      }
     } else {
-      // upload data and end the day
+      if (activeStep < questions.length - 1) {
+        ref.current.scrollIntoView({
+          behavior: "smooth",
+          inline: "nearest",
+          block: "end",
+        });
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      }
     }
   };
 
   const handleBack = () => {
+    if (!centerReached) {
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    } else if (activeStep === 0) {
+      setActiveStep(questions.length - 1);
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    }
     ref.current.scrollIntoView({
       behavior: "smooth",
       inline: "nearest",
       block: "end",
     });
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   let questionShown = "";
@@ -154,6 +179,7 @@ const DailyStepper = (props) => {
             activeStep={activeStep}
             handleNext={handleNext}
             handleBack={handleBack}
+            centerReached={centerReached}
           />
         );
         break;
@@ -174,7 +200,7 @@ const DailyStepper = (props) => {
         );
         break;
 
-      // open writing question
+      // open writing question and center point of survey
       case 3:
         questionShown = (
           <QuestionType3
@@ -186,6 +212,7 @@ const DailyStepper = (props) => {
             handleBack={handleBack}
             responses={responses}
             setResponses={setResponses}
+            handleReset={handleReset}
           />
         );
         break;
@@ -282,7 +309,7 @@ const QuestionType1 = (props) => {
         <Button
           variant="contained"
           onClick={handleBack}
-          disabled={props.activeStep < 1}
+          disabled={props.activeStep < 1 && !props.centerReached}
           className={props.classes.stepButtons}
         >
           back
@@ -583,23 +610,53 @@ const QuestionType2 = (props) => {
   );
 };
 const QuestionType3 = (props) => {
-  const [response, setResponse] = useState();
   const [valid, setValid] = useState(false);
+  let initialState;
+  if (props.responses[props.activeStep]) {
+    initialState = props.responses[props.activeStep];
+    if (!valid) setValid(true);
+    console.log("initial state exists");
+  } else {
+    console.log("initial state not there");
+    let tagState = props.questions[props.activeStep].tags.map((item) => {
+      return {
+        name: item,
+        value: false,
+      };
+    });
+    initialState = ["", tagState];
+  }
+  const [response, setResponse] = useState(initialState);
+  console.log(response);
+  const minWords = 5;
   const handleChange = (e) => {
-    console.log(e.target.value);
+    setResponse((prev) => {
+      prev[0] = e.target.value;
+      return [...prev];
+    });
     validate(e.target.value);
+  };
+
+  const handleTagChange = (e) => {
+    console.log(e.target.name, e.target.value);
+    console.log(response[1][e.target.name], response[1][e.target.name].value);
+    setResponse((prev) => {
+      prev[1][e.target.name].value = !prev[1][e.target.name].value;
+      return [...prev];
+    });
   };
 
   const validate = (value) => {
     let res = [];
-    let str = value.replace(/[\t\n\r\.\?\!]/gm, " ").split(" ");
-    str.map((s) => {
+    let str = value.replace(/[\t\n\r.?!,]/gm, " ").split(" ");
+    str.every((s) => {
       let trimStr = s.trim();
       if (trimStr.length > 0) {
         res.push(trimStr);
       }
+      return true;
     });
-    if (res.length > 29) {
+    if (res.length >= minWords) {
       setValid(true);
     } else {
       setValid(false);
@@ -607,24 +664,22 @@ const QuestionType3 = (props) => {
   };
 
   const handleNext = () => {
-    // props.setResponses((prev) => {
-    //   const newState = prev;
-    //   newState[props.activeStep] = response;
-    //   return newState;
-    // });
-    // setValidated(false);
-    // setResponse("x");
-    // props.handleNext();
+    props.setResponses((prev) => {
+      const newState = prev;
+      newState[props.activeStep] = response;
+      return newState;
+    });
+    props.handleReset();
+    props.handleNext();
   };
 
   const handleBack = () => {
-    // if (validated)
-    //   props.setResponses((prev) => {
-    //     const newState = prev;
-    //     newState[props.activeStep] = response;
-    //     return newState;
-    //   });
-    // setResponse("x");
+    if (valid)
+      props.setResponses((prev) => {
+        const newState = prev;
+        newState[props.activeStep] = response;
+        return newState;
+      });
     props.handleBack();
   };
 
@@ -661,12 +716,12 @@ const QuestionType3 = (props) => {
           rows={10}
           rowsMax={20}
           id="journal-entry"
-          // value={values.amount}
+          value={response[0]}
           onChange={handleChange}
           // labelWidth={120}
         />
         <Typography variant="caption" display="block" gutterBottom>
-          Minimum 30 words.
+          Minimum {minWords} words.
         </Typography>
       </FormControl>
       <Paper className={props.classes.optionsSection}>
@@ -676,14 +731,15 @@ const QuestionType3 = (props) => {
           (Select all that apply)
         </Typography>
         <FormGroup row>
-          {props.questions[props.activeStep].tags.map((tag) => {
+          {props.questions[props.activeStep].tags.map((tag, index) => {
             return (
               <FormControlLabel
+                key={index}
                 control={
                   <Checkbox
-                    // checked={state.checkedB}
-                    // onChange={handleChange}
-                    name={tag}
+                    checked={response[1][index].value}
+                    onChange={handleTagChange}
+                    name={"" + index}
                     color="primary"
                   />
                 }
