@@ -12,6 +12,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@material-ui/core";
+import DoneAllIcon from "@material-ui/icons/DoneAll";
 import Button from "@material-ui/core/Button";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
@@ -116,43 +117,59 @@ const DailyStepper = (props) => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [centerReached, setCenterReached] = useState(false);
+  const [doneForTheDay, setDoneForTheDay] = useState(false);
   const ref = useRef();
   console.log(activeStep);
   const handleNext = () => {
-    if (questions[activeStep].type === 3) {
-      setActiveStep(0);
-      if (!centerReached) setCenterReached(true);
-    } else if (!centerReached) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    } else if (activeStep < questions.length - 2) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
     ref.current.scrollIntoView({
       behavior: "smooth",
       inline: "nearest",
       block: "end",
     });
+
+    if (centerReached) {
+      // center reached, second half of questions
+      if (activeStep < questions.length - 2) {
+        // normal navigation
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      } else {
+        // done for the day
+        setDoneForTheDay(true);
+      }
+    } else {
+      // center not reached, first half of questions
+      if (questions[activeStep].type === 3) {
+        // midway point, trigger centerReached
+        setActiveStep(0);
+        setCenterReached(true);
+      } else {
+        // normal navigation
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      }
+    }
   };
 
   const handleBack = () => {
-    if (questions[activeStep].type === 3) {
-      if (centerReached) setCenterReached(false);
-    }
-    if (!centerReached) {
-      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    if (centerReached) {
+      // center reached, second half of questions
+      if (activeStep === 0) {
+        // first question, so toggle centerReached
+        // setActiveStep to last question
+        setActiveStep(questions.length - 1);
+        setCenterReached(false);
+      } else {
+        // normal navigation
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+      }
     } else {
-      if (activeStep === 0) setActiveStep(questions.length - 1);
-      else setActiveStep((prevActiveStep) => prevActiveStep - 1);
+      // center not reached, first half of questions
+      // normal navigation
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
     }
-    ref.current.scrollIntoView({
-      behavior: "smooth",
-      inline: "nearest",
-      block: "end",
-    });
   };
 
   let questionShown = "";
-  if (!loading)
+  if (!loading && !doneForTheDay) {
     switch (questions[activeStep].type) {
       // scale 1-5 multi questions
       case 1:
@@ -206,15 +223,34 @@ const DailyStepper = (props) => {
       default:
         break;
     }
+  } else {
+    questionShown = (
+      <Grid
+        container
+        justify="center"
+        direction="column"
+        alignItems="center"
+        style={{ height: "80vh" }}
+      >
+        <Typography variant="h4" align="center">
+          <DoneAllIcon fontSize="inherit" />
+          <br />
+          You're all done for today.
+        </Typography>
+        <Typography variant="subtitle1" align="center">
+          See you tomorrow.
+        </Typography>
+      </Grid>
+    );
+  }
 
   return (
     <Grid item md={9} className={classes.root}>
       <div ref={ref} style={{ margin: 0 }}></div>
       {loading ? (
         <Grid
-          style={{ height: "85vh" }}
+          style={{ height: "80vh" }}
           container
-          direction="column"
           justify="center"
           alignItems="center"
         >
@@ -685,7 +721,6 @@ const QuestionType3 = (props) => {
         </Typography>
       </Paper>
       <FormControl fullWidth variant="outlined">
-        {/* <InputLabel htmlFor="journal-entry">My thoughts today</InputLabel> */}
         <OutlinedInput
           multiline
           rows={10}
@@ -693,7 +728,6 @@ const QuestionType3 = (props) => {
           id="journal-entry"
           value={response[0]}
           onChange={handleChange}
-          // labelWidth={120}
         />
         <Typography variant="caption" display="block" gutterBottom>
           Minimum {minWords} words.
