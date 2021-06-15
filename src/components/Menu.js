@@ -210,14 +210,14 @@ export default function Menu(props) {
           <div className={classes.drawerHeader} />
           <Switch>
             <Route path="/history">
-              <History />
+              <History userInfo={props.userInfo} />
             </Route>
             <Route path={["/", "/daily-stepper"]}>
               {cookies.signed ? (
-                <DailyStepper />
+                <DailyStepper userInfo={props.userInfo} />
               ) : (
                 <Grid container justify="center">
-                  <Consent />
+                  <Consent userInfo={props.userInfo} />
                 </Grid>
               )}
             </Route>

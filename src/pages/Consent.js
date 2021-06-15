@@ -10,7 +10,9 @@ import {
 } from "@material-ui/core";
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
+import { firestoreDB } from "../index.js";
 import consentContent from "./consentContent.js";
+import firebase from "firebase/app";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,12 +36,26 @@ const Consent = (props) => {
   };
 
   const handleConfirm = (e) => {
-    setCookie("signed", true);
-    console.log("confirmed");
+    firestoreDB
+      .collection("participants")
+      .doc(props.userInfo.uid)
+      .set({
+        id: props.userInfo.uid,
+        name: props.userInfo.displayName,
+        email: props.userInfo.email,
+        regDate: firebase.firestore.Timestamp.now(),
+      })
+      .then(() => {
+        console.log("user added to database");
+        setCookie("signed", true);
+      })
+      .catch((error) => {
+        console.error("error adding user: ", error);
+      });
   };
 
   return (
-    <Grid container justify="center" md={9} className={classes.root}>
+    <Grid container item justify="center" md={9} className={classes.root}>
       <Typography variant="h5">Consent Form</Typography>
       <TextField
         id="terms"

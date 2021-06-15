@@ -20,6 +20,8 @@ import "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { firestoreDB } from "..";
 import * as photos from "../assets/emotion_images";
+import firebase from "firebase/app";
+import { useCookies } from "react-cookie";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -82,13 +84,35 @@ const useStyles = makeStyles((theme) => ({
 const questions = [];
 
 const DailyStepper = (props) => {
+  let response;
   const [responses1, setResponses1] = useState([]);
   const [responses2, setResponses2] = useState([]);
-  console.log("response1", responses1);
-  console.log("response2", responses2);
   const [loading, setLoading] = useState(true);
-  // fetch from firestore
+  const [dbFetchError, setDbFetchError] = useState(false);
+  const matches = useMediaQuery((theme) => theme.breakpoints.up("sm"));
+  const classes = useStyles();
+  const [activeStep, setActiveStep] = useState(0);
+  const [centerReached, setCenterReached] = useState(false);
+  const [doneForTheDay, setDoneForTheDay] = useState(false);
+  const [cookie, setCookie] = useCookies(["dateStamp"]);
+  const ref = useRef();
+
+  // check timout
+  if (cookie.dateStamp) {
+    // date cookie exists, check
+    if (new Date(cookie.dateStamp) <= new Date()) {
+      // new day has come, allow retake
+      if (doneForTheDay) setDoneForTheDay(false);
+    } else {
+      // disable retake
+      if (loading) setLoading(false);
+      if (!doneForTheDay) setDoneForTheDay(true);
+    }
+  }
+
+  // fetch questions from firestore
   useEffect(() => {
+    if (doneForTheDay) return;
     firestoreDB
       .collection("survey-questions")
       .get()
@@ -96,30 +120,46 @@ const DailyStepper = (props) => {
         snapshot.forEach((doc) => {
           questions.push(doc.data());
         });
+        if (questions.length < 1) {
+          setDbFetchError(true);
+        }
         setLoading(false);
+      })
+      .catch((e) => {
+        setLoading(false);
+        setDbFetchError(true);
       });
     return () => {};
-  }, []);
+  }, [doneForTheDay]);
 
-  // firebase
-  //   .storage()
-  //   .refFromURL(
-  //     "gs://jack-habit-journal.appspot.com/questions-images/happy/happy1.png"
-  //   )
-  //   .getDownloadURL()
-  //   .then((url) => setImageUrl(url));
+  // write answers to firestore
+  const uploadToFirestore = () => {
+    response = [...responses1, ...responses2];
+    response = JSON.stringify(response);
 
-  // write to firestore
+    firestoreDB
+      .collection("responses")
+      .doc(props.userInfo.uid)
+      .collection("responses")
+      .doc()
+      .set({
+        date: firebase.firestore.Timestamp.now(),
+        response,
+      })
+      .then(() => {
+        console.log("answers uploaded");
+        setDoneForTheDay(true);
+        // set the timout duration for retake
+        let newStamp = new Date();
+        newStamp.setHours(newStamp.getHours(), newStamp.getMinutes() + 1);
+        setCookie("dateStamp", newStamp);
+      })
+      .catch((error) => {
+        console.error("error adding answers: ", error);
+      })
+      .finally(() => setLoading(false));
+  };
 
-  const matches = useMediaQuery((theme) => theme.breakpoints.up("sm"));
-
-  const classes = useStyles();
-
-  const [activeStep, setActiveStep] = useState(0);
-  const [centerReached, setCenterReached] = useState(false);
-  const [doneForTheDay, setDoneForTheDay] = useState(false);
-  const ref = useRef();
-  console.log(activeStep);
   const handleNext = () => {
     ref.current.scrollIntoView({
       behavior: "smooth",
@@ -134,7 +174,9 @@ const DailyStepper = (props) => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
       } else {
         // done for the day
-        setDoneForTheDay(true);
+        // upload to db
+        setLoading(true);
+        uploadToFirestore();
       }
     } else {
       // center not reached, first half of questions
@@ -169,7 +211,7 @@ const DailyStepper = (props) => {
   };
 
   let questionShown = "";
-  if (!loading && !doneForTheDay) {
+  if (!loading && !doneForTheDay && questions.length > 0) {
     switch (questions[activeStep].type) {
       // scale 1-5 multi questions
       case 1:
@@ -223,7 +265,7 @@ const DailyStepper = (props) => {
       default:
         break;
     }
-  } else {
+  } else if (doneForTheDay) {
     questionShown = (
       <Grid
         container
@@ -241,6 +283,14 @@ const DailyStepper = (props) => {
           See you tomorrow.
         </Typography>
       </Grid>
+    );
+  }
+
+  if (!loading && dbFetchError) {
+    questionShown = (
+      <Typography variant="h6" align="center">
+        There's been an error fetching the data.
+      </Typography>
     );
   }
 
@@ -271,7 +321,7 @@ const QuestionType1 = (props) => {
   } else {
     initialState = props.questions.map((item, index) => {
       return {
-        name: index.toString(),
+        question: index.toString(),
         value: "",
       };
     });
@@ -288,11 +338,17 @@ const QuestionType1 = (props) => {
       control = true;
       return true;
     });
-    if (control) setValidated(control);
+    if (control) {
+      setValidated(control);
+      props.setResponses((prev) => {
+        const newState = prev;
+        newState[props.activeStep] = responses;
+        return newState;
+      });
+    }
   };
 
   useEffect(() => {
-    console.log("validating");
     validate();
   });
 
@@ -305,11 +361,6 @@ const QuestionType1 = (props) => {
   };
 
   const handleNext = () => {
-    props.setResponses((prev) => {
-      const newState = prev;
-      newState[props.activeStep] = responses;
-      return newState;
-    });
     props.handleNext();
   };
 
@@ -403,39 +454,6 @@ const QuestionType1 = (props) => {
 };
 
 const QuestionType2 = (props) => {
-  // const images = [];
-  // let output = "";
-  // if (!props.questionImages) {
-  //   props.questions[props.activeStep].photosURL.forEach((link) => {
-  //     firebase
-  //       .storage()
-  //       .refFromURL(link)
-  //       .getDownloadURL()
-  //       .then((url) => {
-  //         images.push(url);
-  //         if (
-  //           images.length ===
-  //             props.questions[props.activeStep].photosURL.length &&
-  //           !props.questionImages
-  //         ) {
-  //           props.setquestionImages(images);
-  //           console.log("images set");
-  //         }
-  //       });
-  //   });
-  // } else {
-  //   output = props.questionImages.map((url, index) => {
-  //     return (
-  //       <img
-  //         key={index}
-  //         className={props.classes.img}
-  //         src={url}
-  //         alt={props.questions[props.activeStep].type}
-  //       />
-  //     );
-  //   });
-  //   console.log(output);
-  // }
   let initialState = "x";
   const [validated, setValidated] = useState(false);
   const [response, setResponse] = useState(initialState);
@@ -635,7 +653,7 @@ const QuestionType3 = (props) => {
   } else {
     let tagState = props.questions[props.activeStep].tags.map((item) => {
       return {
-        name: item,
+        tag: item,
         value: false,
       };
     });
@@ -711,7 +729,6 @@ const QuestionType3 = (props) => {
           className={props.classes.stepButtons}
           disabled={!valid && !props.responses[props.activeStep]}
         >
-          {/* {activeStep < questionsLength - 1 ? "next" : "finish"} */}
           next
         </Button>
       </Grid>
