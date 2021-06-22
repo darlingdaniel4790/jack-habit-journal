@@ -14,7 +14,7 @@ const Login = (props) => {
       direction="row"
       alignItems="center"
       justify="center"
-      style={{ height: "100%", display: `${props.display}` }}
+      style={{ height: "100%" }}
     >
       <Grid item>
         <Box

@@ -55,19 +55,40 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     flexDirection: "column",
   },
-  stepButtons: {
-    bottom: 0,
+  stepButtonsLeft: {
+    // bottom: 0,
     margin: theme.spacing(1),
-  },
-  stepButtonsContainer: {
     position: "absolute",
     left: 0,
     bottom: 0,
     zIndex: 999,
-    marginBottom: 0,
-    padding: "0 10px",
-    justifyContent: "space-between",
+    // marginBottom: 0,
+    // padding: "0 10px",
   },
+  stepButtonsRight: {
+    // bottom: 0,
+    margin: theme.spacing(1),
+    position: "absolute",
+    [theme.breakpoints.down("sm")]: {
+      right: 0,
+    },
+    [theme.breakpoints.up("sm")]: {
+      right: "15px",
+    },
+    bottom: 0,
+    zIndex: 999,
+    // marginBottom: 0,
+    // padding: "0 10px",
+  },
+  // stepButtonsContainer: {
+  //   position: "absolute",
+  //   left: 0,
+  //   bottom: 0,
+  //   zIndex: 999,
+  //   marginBottom: 0,
+  //   padding: "0 10px",
+  //   justifyContent: "space-between",
+  // },
   radioFormControl: {
     width: "100%",
   },
@@ -374,12 +395,12 @@ const QuestionType1 = (props) => {
   };
   return (
     <>
-      <Grid container className={props.classes.stepButtonsContainer}>
+      <Grid container>
         <Button
           variant="contained"
           onClick={handleBack}
           disabled={props.activeStep < 1 && !props.centerReached}
-          className={props.classes.stepButtons}
+          className={props.classes.stepButtonsLeft}
         >
           back
         </Button>
@@ -388,7 +409,7 @@ const QuestionType1 = (props) => {
           color="primary"
           disabled={!validated}
           onClick={handleNext}
-          className={props.classes.stepButtons}
+          className={props.classes.stepButtonsRight}
         >
           {props.centerReached && props.activeStep === questions.length - 2
             ? "finish"
@@ -527,11 +548,11 @@ const QuestionType2 = (props) => {
   }
   return (
     <>
-      <Grid container className={props.classes.stepButtonsContainer}>
+      <Grid container>
         <Button
           variant="contained"
           onClick={handleBack}
-          className={props.classes.stepButtons}
+          className={props.classes.stepButtonsLeft}
         >
           back
         </Button>
@@ -539,7 +560,7 @@ const QuestionType2 = (props) => {
           variant="contained"
           color="primary"
           onClick={handleNext}
-          className={props.classes.stepButtons}
+          className={props.classes.stepButtonsRight}
           disabled={!validated && !props.responses[props.activeStep]}
         >
           next
@@ -714,11 +735,11 @@ const QuestionType3 = (props) => {
 
   return (
     <>
-      <Grid container className={props.classes.stepButtonsContainer}>
+      <Grid container>
         <Button
           variant="contained"
           onClick={handleBack}
-          className={props.classes.stepButtons}
+          className={props.classes.stepButtonsLeft}
         >
           back
         </Button>
@@ -726,7 +747,7 @@ const QuestionType3 = (props) => {
           variant="contained"
           color="primary"
           onClick={handleNext}
-          className={props.classes.stepButtons}
+          className={props.classes.stepButtonsRight}
           disabled={!valid && !props.responses[props.activeStep]}
         >
           next

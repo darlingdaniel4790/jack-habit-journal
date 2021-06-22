@@ -1,0 +1,60 @@
+[
+  [
+    { "question": "0", "value": "disagree" },
+    { "question": "1", "value": "disagree" },
+    { "question": "2", "value": "disagree" },
+    { "question": "3", "value": "disagree" },
+    { "question": "4", "value": "disagree" },
+    { "question": "5", "value": "disagree" },
+    { "question": "6", "value": "disagree" },
+    { "question": "7", "value": "disagree" },
+    { "question": "8", "value": "disagree" }
+  ],
+  "1",
+  "1",
+  "1",
+  [
+    { "question": "0", "value": "disagree" },
+    { "question": "1", "value": "disagree" },
+    { "question": "2", "value": "disagree" },
+    { "question": "3", "value": "disagree" },
+    { "question": "4", "value": "disagree" },
+    { "question": "5", "value": "disagree" }
+  ],
+  [
+    "f f f f f",
+    [
+      { "tag": "sleep", "value": false },
+      { "tag": "nutrition", "value": false },
+      { "tag": "physical activity/fitness", "value": true },
+      { "tag": "finance", "value": false },
+      { "tag": "relationships", "value": false },
+      { "tag": "problem-solving", "value": false },
+      { "tag": "gratitude", "value": false },
+      { "tag": "mindfulness", "value": false },
+      { "tag": "values", "value": false }
+    ]
+  ],
+  [
+    { "question": "0", "value": "notSure" },
+    { "question": "1", "value": "notSure" },
+    { "question": "2", "value": "notSure" },
+    { "question": "3", "value": "notSure" },
+    { "question": "4", "value": "notSure" },
+    { "question": "5", "value": "notSure" },
+    { "question": "6", "value": "notSure" },
+    { "question": "7", "value": "notSure" },
+    { "question": "8", "value": "notSure" }
+  ],
+  "3",
+  "3",
+  "3",
+  [
+    { "question": "0", "value": "stronglyAgree" },
+    { "question": "1", "value": "stronglyAgree" },
+    { "question": "2", "value": "stronglyAgree" },
+    { "question": "3", "value": "stronglyAgree" },
+    { "question": "4", "value": "stronglyAgree" },
+    { "question": "5", "value": "stronglyAgree" }
+  ]
+]

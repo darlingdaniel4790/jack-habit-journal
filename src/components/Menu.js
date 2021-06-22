@@ -110,7 +110,7 @@ export default function Menu(props) {
     if (!isDarkMode) {
       setCookies("theme", "dark");
     } else {
-      setCookies("theme", "default");
+      setCookies("theme", "light");
     }
   };
   const menuTextColor = isDarkMode ? "white" : "initial";
