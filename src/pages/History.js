@@ -1,12 +1,22 @@
-import { Grid, Typography } from "@material-ui/core";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  CircularProgress,
+  Grid,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import React, { useEffect } from "react";
 import { firestoreDB } from "..";
-import Paper from "@material-ui/core/Paper";
+// import Paper from "@material-ui/core/Paper";
 import { useState } from "react";
 import firebase from "firebase/app";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 const History = (props) => {
   const [list, setList] = useState("");
+  const [loading, setLoading] = useState(true);
   // fetch from firestore
   useEffect(() => {
     let output = [];
@@ -27,23 +37,77 @@ const History = (props) => {
             day = date.getDate(),
             month = date.getMonth() + 1,
             year = date.getFullYear();
-          // console.log(JSON.parse(doc.data().response));
+          const responseArray = JSON.parse(doc.data().response);
           return (
-            <Paper key={index}>
-              <Grid container fluid="true" direction="column">
-                <Typography
-                  variant="h6"
-                  align="right"
-                >{`${day}-${month}-${year}`}</Typography>
-                <Typography variant="h4">Journal Entry</Typography>
-                <Typography variant="h5">
-                  {/* {JSON.parse(doc.data().response)[5][0]} */}
-                </Typography>
-              </Grid>
-            </Paper>
+            <Grid item md={9} key={index} style={{ width: "100%" }}>
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography variant="h5">{`${day}-${month}-${year}`}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Grid container direction="column" spacing={1}>
+                    <Typography variant="h6" color="secondary">
+                      You indicated these topics
+                    </Typography>
+                    <Typography variant="body1">
+                      {responseArray[5][1].map((data, index) => {
+                        if (data.value === true) {
+                          if (index === responseArray[5][1].length - 1)
+                            return " | " + data.tag + " | ";
+                          return " | " + data.tag;
+                        }
+                        if (index === responseArray[5][1].length - 1)
+                          return " | ";
+                        return "";
+                      })}
+                    </Typography>
+                    <br />
+                    <Typography variant="h6" color="secondary">
+                      Journal Entry
+                    </Typography>
+                    <TextField
+                      id="terms"
+                      label=""
+                      variant="filled"
+                      multiline
+                      fullWidth
+                      defaultValue={responseArray[5][0]}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                    {/* <Typography variant="subtitle2">
+                      Pre-Journal Responses
+                      <p>{doc.data().response}</p>
+                    </Typography>
+                    <Typography variant="subtitle2">
+                      Post-Journal Responses
+                      <p>{doc.data().response}</p>
+                    </Typography> */}
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            </Grid>
+            // <Paper key={index}>
+            //   <Grid container fluid="true" direction="column">
+            //     <Typography
+            //       variant="h6"
+            //       align="right"
+            //     >{`${day}-${month}-${year}`}</Typography>
+            //     <Typography variant="h4">Journal Entry</Typography>
+            //     <Typography variant="h5">
+            //       {/* {JSON.parse(doc.data().response)[5][0]} */}
+            //     </Typography>
+            //   </Grid>
+            // </Paper>
           );
         });
         setList(output);
+        setLoading(false);
       })
       .catch((e) => {
         console.log(e);
@@ -51,7 +115,22 @@ const History = (props) => {
     return () => {};
   }, [props.userInfo.uid]);
 
-  return <Grid container>{list}</Grid>;
+  return (
+    <Grid container direction="column" alignContent="center" spacing={2}>
+      {loading ? (
+        <Grid
+          style={{ height: "80vh" }}
+          container
+          justify="center"
+          alignItems="center"
+        >
+          <CircularProgress />
+        </Grid>
+      ) : (
+        list
+      )}
+    </Grid>
+  );
 };
 
 History.propTypes = {};

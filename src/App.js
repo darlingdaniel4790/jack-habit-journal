@@ -33,10 +33,12 @@ function App() {
             firestoreDB
               .collection("participants")
               .doc(userInfo.uid)
-              .collection("devices")
-              .add({
-                token,
-              })
+              .set(
+                {
+                  notificationToken: token,
+                },
+                { merge: true }
+              )
               .then(() => {
                 console.log("token added");
               })

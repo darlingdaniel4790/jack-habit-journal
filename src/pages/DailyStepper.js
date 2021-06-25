@@ -121,7 +121,7 @@ const DailyStepper = (props) => {
   // check timout
   if (cookie.dateStamp) {
     // date cookie exists, check
-    if (new Date(cookie.dateStamp) <= new Date()) {
+    if (new Date(cookie.dateStamp).getDate() <= new Date().getDate()) {
       // new day has come, allow retake
       if (doneForTheDay) setDoneForTheDay(false);
     } else {
@@ -130,6 +130,24 @@ const DailyStepper = (props) => {
       if (!doneForTheDay) setDoneForTheDay(true);
     }
   }
+
+  // refresh every 5 seconds to see if date is reached
+  useEffect(() => {
+    let timer;
+    if (doneForTheDay) {
+      timer = setInterval(() => {
+        setCenterReached(false);
+        console.log("re-rendering");
+      }, 3000);
+    } else {
+      clearInterval(timer);
+    }
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, [doneForTheDay]);
 
   // fetch questions from firestore
   useEffect(() => {
@@ -172,7 +190,7 @@ const DailyStepper = (props) => {
         setDoneForTheDay(true);
         // set the timout duration for retake
         let newStamp = new Date();
-        newStamp.setHours(newStamp.getHours(), newStamp.getMinutes() + 1);
+        newStamp.setDate(newStamp.getDate() + 1);
         setCookie("dateStamp", newStamp);
       })
       .catch((error) => {
