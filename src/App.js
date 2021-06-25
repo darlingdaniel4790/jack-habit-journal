@@ -8,6 +8,7 @@ import "firebase/messaging";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import { useCookies } from "react-cookie";
+import { firestoreDB } from ".";
 
 function App() {
   // console.log("\nAPP.JS RENDERING");
@@ -15,33 +16,64 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState();
+  const [consentSigned, setConsentSigned] = useState(false);
 
   const messaging = firebase.messaging();
 
+  // register user notification token
   useEffect(() => {
-    messaging
-      .getToken({
-        vapidKey:
-          "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
-      })
-      .then((token) => {
-        if (token) {
-          console.log(token);
-        } else {
-          console.log("asking permission");
-        }
-      })
-      .catch((e) => console.log(e));
-  }, [messaging]);
+    if (loggedIn) {
+      messaging
+        .getToken({
+          vapidKey:
+            "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
+        })
+        .then((token) => {
+          if (token) {
+            firestoreDB
+              .collection("participants")
+              .doc(userInfo.uid)
+              .collection("devices")
+              .add({
+                token,
+              })
+              .then(() => {
+                console.log("token added");
+              })
+              .catch((error) => {
+                console.error("error adding notification token: ", error);
+              });
+          } else {
+            // ask for permission again if blocked
+          }
+        })
+        .catch((e) => console.log(e));
+    }
+  }, [messaging, loggedIn, userInfo]);
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       // console.log("auth state changing");
       if (loggedIn) return;
       if (user) {
-        setUserInfo(user);
-        if (showUI) setShowUI(false);
-        setLoggedIn(true);
+        firestoreDB
+          .collection("participants")
+          .doc(user.uid)
+          .get()
+          .then((snapshot) => {
+            if (snapshot.exists) {
+              // user has accepted terms and been added to database
+              setConsentSigned(true);
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          })
+          .finally(() => {
+            setUserInfo(user);
+            if (showUI) setShowUI(false);
+            setLoggedIn(true);
+          });
       } else {
         if (!showUI) setShowUI(true);
       }
@@ -82,7 +114,12 @@ function App() {
           </Grid>
         )}
         {!loading && loggedIn && (
-          <Menu handleLogout={handleLogout} userInfo={userInfo} />
+          <Menu
+            handleLogout={handleLogout}
+            userInfo={userInfo}
+            consentSigned={consentSigned}
+            setConsentSigned={setConsentSigned}
+          />
         )}
         {!loggedIn && showUI && <Login classes={classes["login-container"]} />}
       </Grid>

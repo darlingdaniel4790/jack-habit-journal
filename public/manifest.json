@@ -20,5 +20,11 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#d4bc33",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "categories": [
+    "research",
+    "education",
+    "computer sciene",
+    "persuasive technology"
+  ]
 }

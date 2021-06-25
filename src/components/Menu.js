@@ -91,7 +91,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Menu(props) {
-  const [cookies, setCookies] = useCookies(["signed", "theme"]);
+  const [cookies, setCookies] = useCookies(["theme"]);
   const [isDarkMode, setIsDarkMode] = useState(() => cookies.theme === "dark");
   const classes = useStyles();
   const theme = useTheme();
@@ -131,7 +131,7 @@ export default function Menu(props) {
             onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
-            disabled={cookies.signed ? false : true}
+            disabled={props.consentSigned ? false : true}
           >
             <MenuIcon />
           </IconButton>
@@ -213,11 +213,14 @@ export default function Menu(props) {
               <History userInfo={props.userInfo} />
             </Route>
             <Route path={["/", "/daily-stepper"]}>
-              {cookies.signed ? (
+              {props.consentSigned ? (
                 <DailyStepper userInfo={props.userInfo} />
               ) : (
                 <Grid container justify="center">
-                  <Consent userInfo={props.userInfo} />
+                  <Consent
+                    userInfo={props.userInfo}
+                    setConsentSigned={props.setConsentSigned}
+                  />
                 </Grid>
               )}
             </Route>

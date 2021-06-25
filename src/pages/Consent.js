@@ -26,8 +26,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Consent = (props) => {
-  const [, setCookie] = useCookies(["signed"]);
-
   const classes = useStyles();
   const [checked, setChecked] = useState(false);
 
@@ -39,15 +37,18 @@ const Consent = (props) => {
     firestoreDB
       .collection("participants")
       .doc(props.userInfo.uid)
-      .set({
-        id: props.userInfo.uid,
-        name: props.userInfo.displayName,
-        email: props.userInfo.email,
-        regDate: firebase.firestore.Timestamp.now(),
-      })
+      .set(
+        {
+          id: props.userInfo.uid,
+          name: props.userInfo.displayName,
+          email: props.userInfo.email,
+          regDate: firebase.firestore.Timestamp.now(),
+        },
+        { merge: true }
+      )
       .then(() => {
         console.log("user added to database");
-        setCookie("signed", true);
+        props.setConsentSigned(true);
       })
       .catch((error) => {
         console.error("error adding user: ", error);
