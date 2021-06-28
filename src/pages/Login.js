@@ -30,11 +30,11 @@ const Login = (props) => {
         />
         <Container className={props.classes}>
           <Typography variant="h4">
-            Welcome to the Jack Habit Journal.
+            Welcome to the JackHabbit Journal.
           </Typography>
           <hr />
           <Typography variant="h5">
-            Choose your preferred signin method to continue.
+            Choose your preferred sign-in method to continue.
           </Typography>
         </Container>
       </Grid>

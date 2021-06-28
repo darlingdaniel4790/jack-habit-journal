@@ -115,6 +115,22 @@ export default function Menu(props) {
   };
   const menuTextColor = isDarkMode ? "white" : "initial";
 
+  let title;
+  switch (window.location.pathname) {
+    case "/":
+      title = "Daily Journaling";
+      break;
+    case "/daily-stepper":
+      title = "Daily Journaling";
+      break;
+    case "/history":
+      title = "History";
+      break;
+
+    default:
+      break;
+  }
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -136,7 +152,7 @@ export default function Menu(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Jack Habit Journal
+            {title}
           </Typography>
           <Avatar
             alt={props.userInfo.displayName}
