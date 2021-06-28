@@ -716,16 +716,17 @@ const QuestionType3 = (props) => {
   };
 
   const validate = (value) => {
-    let res = [];
-    let str = value.replace(/[\t\n\r.?!,]/gm, " ").split(" ");
-    str.every((s) => {
-      let trimStr = s.trim();
-      if (trimStr.length > 0) {
-        res.push(trimStr);
-      }
-      return true;
-    });
-    if (res.length >= minWords) {
+    // let res = [];
+    let strLength = value.match(/\S+/g).length;
+    // let str = value.replace(/[\t\n\r.?!,]/gm, " ").split(" ");
+    // str.every((s) => {
+    //   let trimStr = s.trim();
+    //   if (trimStr.length > 0) {
+    //     res.push(trimStr);
+    //   }
+    //   return true;
+    // });
+    if (strLength >= minWords) {
       setValid(true);
     } else {
       setValid(false);
