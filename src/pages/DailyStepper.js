@@ -106,8 +106,8 @@ const questions = [];
 
 const DailyStepper = (props) => {
   let response;
-  const [responses1, setResponses1] = useState([]);
-  const [responses2, setResponses2] = useState([]);
+  const [responses1, setResponses1] = useState({});
+  const [responses2, setResponses2] = useState({});
   const [loading, setLoading] = useState(true);
   const [dbFetchError, setDbFetchError] = useState(false);
   const matches = useMediaQuery((theme) => theme.breakpoints.up("sm"));
@@ -117,7 +117,9 @@ const DailyStepper = (props) => {
   const [doneForTheDay, setDoneForTheDay] = useState(false);
   const [cookie, setCookie] = useCookies(["dateStamp"]);
   const ref = useRef();
-
+  console.log(activeStep);
+  console.log(responses1);
+  console.log(responses2);
   // check timout
   if (cookie.dateStamp) {
     // date cookie exists, check
@@ -174,9 +176,13 @@ const DailyStepper = (props) => {
 
   // write answers to firestore
   const uploadToFirestore = () => {
-    response = [...responses1, ...responses2];
+    response = {
+      pre: { ...responses1 },
+      post: { ...responses2 },
+    };
+    console.log(response);
     response = JSON.stringify(response);
-
+    console.log(response);
     firestoreDB
       .collection("responses")
       .doc(props.userInfo.uid)
@@ -207,47 +213,56 @@ const DailyStepper = (props) => {
       block: "end",
     });
 
-    if (centerReached) {
-      // center reached, second half of questions
-      if (activeStep < questions.length - 2) {
-        // normal navigation
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      } else {
-        // done for the day
-        // upload to db
-        setLoading(true);
-        uploadToFirestore();
-      }
+    // if (centerReached) {
+    //   // center reached, second half of questions
+    //   if (activeStep < questions.length - 2) {
+    //     // normal navigation
+    //     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    //   } else {
+    //     // done for the day
+    //     // upload to db
+    //     setLoading(true);
+    //     uploadToFirestore();
+    //   }
+    // } else {
+    //   // center not reached, first half of questions
+    //   if (questions[activeStep].type === 3) {
+    //     // midway point, trigger centerReached
+    //     setActiveStep(0);
+    //     setCenterReached(true);
+    //   } else {
+    //     // normal navigation
+    //     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    //   }
+    // }
+    if (activeStep === questions.length - 1) {
+      // done for the day
+      // upload to db
+      setLoading(true);
+      uploadToFirestore();
     } else {
-      // center not reached, first half of questions
-      if (questions[activeStep].type === 3) {
-        // midway point, trigger centerReached
-        setActiveStep(0);
-        setCenterReached(true);
-      } else {
-        // normal navigation
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      }
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
 
   const handleBack = () => {
-    if (centerReached) {
-      // center reached, second half of questions
-      if (activeStep === 0) {
-        // first question, so toggle centerReached
-        // setActiveStep to last question
-        setActiveStep(questions.length - 1);
-        setCenterReached(false);
-      } else {
-        // normal navigation
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-      }
-    } else {
-      // center not reached, first half of questions
-      // normal navigation
-      setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    }
+    // if (centerReached) {
+    //   // center reached, second half of questions
+    //   if (activeStep === 0) {
+    //     // first question, so toggle centerReached
+    //     // setActiveStep to last question
+    //     setActiveStep(questions.length - 1);
+    //     setCenterReached(false);
+    //   } else {
+    //     // normal navigation
+    //     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    //   }
+    // } else {
+    //   // center not reached, first half of questions
+    //   // normal navigation
+    //   setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    // }
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   let questionShown = "";
@@ -258,6 +273,7 @@ const DailyStepper = (props) => {
         questionShown = (
           <QuestionType1
             {...questions[activeStep]}
+            keyLabel={questions[activeStep].key}
             classes={classes}
             matches={matches}
             responses={centerReached ? responses2 : responses1}
@@ -275,6 +291,7 @@ const DailyStepper = (props) => {
         questionShown = (
           <QuestionType2
             questions={questions}
+            keyLabel={questions[activeStep].key}
             classes={classes}
             matches={matches}
             activeStep={activeStep}
@@ -291,6 +308,7 @@ const DailyStepper = (props) => {
         questionShown = (
           <QuestionType3
             questions={questions}
+            keyLabel={questions[activeStep].key}
             classes={classes}
             matches={matches}
             activeStep={activeStep}
@@ -298,6 +316,8 @@ const DailyStepper = (props) => {
             handleBack={handleBack}
             responses={responses1}
             setResponses={setResponses1}
+            centerReached={centerReached}
+            setCenterReached={setCenterReached}
           />
         );
         break;
@@ -356,13 +376,14 @@ const DailyStepper = (props) => {
 const QuestionType1 = (props) => {
   let initialState = [];
   const [validated, setValidated] = useState(false);
-  if (props.responses[props.activeStep]) {
-    initialState = props.responses[props.activeStep];
+  if (props.responses[props.keyLabel]) {
+    initialState = props.responses[props.keyLabel];
   } else {
     initialState = props.questions.map((item, index) => {
       return {
-        question: index.toString(),
+        question: index + 1,
         value: "",
+        numValue: 0,
       };
     });
   }
@@ -382,7 +403,7 @@ const QuestionType1 = (props) => {
       setValidated(control);
       props.setResponses((prev) => {
         const newState = prev;
-        newState[props.activeStep] = responses;
+        newState[props.keyLabel] = responses;
         return newState;
       });
     }
@@ -393,9 +414,31 @@ const QuestionType1 = (props) => {
   });
 
   const handleChange = (e) => {
+    let numValue;
+    switch (e.target.value) {
+      case "stronglyDisagree":
+        numValue = 1;
+        break;
+      case "disagree":
+        numValue = 2;
+        break;
+      case "notSure":
+        numValue = 3;
+        break;
+      case "agree":
+        numValue = 4;
+        break;
+      case "stronglyAgree":
+        numValue = 5;
+        break;
+
+      default:
+        break;
+    }
     setResponses((prev) => {
       const newValue = prev;
       newValue[e.target.name].value = e.target.value;
+      newValue[e.target.name].numValue = numValue;
       return [...newValue];
     });
   };
@@ -407,7 +450,7 @@ const QuestionType1 = (props) => {
   const handleBack = () => {
     props.setResponses((prev) => {
       const newState = prev;
-      newState[props.activeStep] = responses;
+      newState[props.keyLabel] = responses;
       return newState;
     });
     props.handleBack();
@@ -418,7 +461,7 @@ const QuestionType1 = (props) => {
         <Button
           variant="contained"
           onClick={handleBack}
-          disabled={props.activeStep < 1 && !props.centerReached}
+          disabled={props.activeStep < 1}
           className={props.classes.stepButtonsLeft}
         >
           back
@@ -430,7 +473,7 @@ const QuestionType1 = (props) => {
           onClick={handleNext}
           className={props.classes.stepButtonsRight}
         >
-          {props.centerReached && props.activeStep === questions.length - 2
+          {props.centerReached && props.activeStep === questions.length - 1
             ? "finish"
             : "next"}
         </Button>
@@ -494,11 +537,11 @@ const QuestionType2 = (props) => {
   let initialState = "x";
   const [validated, setValidated] = useState(false);
   const [response, setResponse] = useState(initialState);
-  if (props.responses[props.activeStep]) {
+  if (props.responses[props.keyLabel]) {
     if (!response) {
-      initialState = props.responses[props.activeStep];
+      initialState = props.responses[props.keyLabel];
     } else if (response === "x") {
-      setResponse(props.responses[props.activeStep]);
+      setResponse(props.responses[props.keyLabel]);
     }
     if (!validated) setValidated(true);
   }
@@ -510,7 +553,7 @@ const QuestionType2 = (props) => {
   const handleNext = () => {
     props.setResponses((prev) => {
       const newState = prev;
-      newState[props.activeStep] = response;
+      newState[props.keyLabel] = response;
       return newState;
     });
     setValidated(false);
@@ -522,7 +565,7 @@ const QuestionType2 = (props) => {
     if (validated)
       props.setResponses((prev) => {
         const newState = prev;
-        newState[props.activeStep] = response;
+        newState[props.KeyLabel] = response;
         return newState;
       });
     setResponse("x");
@@ -530,8 +573,8 @@ const QuestionType2 = (props) => {
   };
 
   let imageRef = [];
-  switch (props.activeStep) {
-    case 1:
+  switch (props.questions[props.activeStep].key) {
+    case "EmotionValence":
       imageRef = [
         photos.happy1,
         photos.happy2,
@@ -540,7 +583,7 @@ const QuestionType2 = (props) => {
         photos.happy5,
       ];
       break;
-    case 2:
+    case "EmotionArousal":
       imageRef = [
         photos.arousal1,
         photos.arousal2,
@@ -549,7 +592,7 @@ const QuestionType2 = (props) => {
         photos.arousal5,
       ];
       break;
-    case 3:
+    case "EmotionDominance":
       imageRef = [
         photos.control1,
         photos.control2,
@@ -577,7 +620,7 @@ const QuestionType2 = (props) => {
           color="primary"
           onClick={handleNext}
           className={props.classes.stepButtonsRight}
-          disabled={!validated && !props.responses[props.activeStep]}
+          disabled={!validated && !props.responses[props.keyLabel]}
         >
           next
         </Button>
@@ -586,13 +629,9 @@ const QuestionType2 = (props) => {
         <Typography variant="h6">
           {props.questions[props.activeStep].question}
           <br />
-          <span style={{ color: "#f44336" }}>
-            {`1 - ${props.questions[props.activeStep].keywords[0]}`}
-          </span>
+          {`1 - ${props.questions[props.activeStep].keywords[0]}`}
           <br />
-          <span style={{ color: "#4caf50" }}>
-            {`9 - ${props.questions[props.activeStep].keywords[1]}`}
-          </span>
+          {`9 - ${props.questions[props.activeStep].keywords[1]}`}
         </Typography>
       </Paper>
       <Paper className={props.classes.optionsSection}>
@@ -684,8 +723,8 @@ const QuestionType2 = (props) => {
 const QuestionType3 = (props) => {
   const [valid, setValid] = useState(false);
   let initialState;
-  if (props.responses[props.activeStep]) {
-    initialState = props.responses[props.activeStep];
+  if (props.responses[props.keyLabel]) {
+    initialState = props.responses[props.keyLabel];
     if (!valid) setValid(true);
   } else {
     let tagState = props.questions[props.activeStep].tags.map((item) => {
@@ -714,16 +753,7 @@ const QuestionType3 = (props) => {
   };
 
   const validate = (value) => {
-    // let res = [];
     let strLength = value.match(/\S+/g).length;
-    // let str = value.replace(/[\t\n\r.?!,]/gm, " ").split(" ");
-    // str.every((s) => {
-    //   let trimStr = s.trim();
-    //   if (trimStr.length > 0) {
-    //     res.push(trimStr);
-    //   }
-    //   return true;
-    // });
     if (strLength >= minWords) {
       setValid(true);
     } else {
@@ -734,9 +764,10 @@ const QuestionType3 = (props) => {
   const handleNext = () => {
     props.setResponses((prev) => {
       const newState = prev;
-      newState[props.activeStep] = response;
+      newState[props.keyLabel] = response;
       return newState;
     });
+    props.setCenterReached(true);
     props.handleNext();
   };
 
@@ -744,9 +775,10 @@ const QuestionType3 = (props) => {
     if (valid)
       props.setResponses((prev) => {
         const newState = prev;
-        newState[props.activeStep] = response;
+        newState[props.keyLabel] = response;
         return newState;
       });
+    props.setCenterReached(false);
     props.handleBack();
   };
 
@@ -765,7 +797,7 @@ const QuestionType3 = (props) => {
           color="primary"
           onClick={handleNext}
           className={props.classes.stepButtonsRight}
-          disabled={!valid && !props.responses[props.activeStep]}
+          disabled={!valid && !props.responses[props.keyLabel]}
         >
           next
         </Button>

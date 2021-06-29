@@ -1,0 +1,54 @@
+{
+  "pre": {
+    "ResilienceAssessment": [
+      { "question": 1, "value": "agree", "numValue": 4 },
+      { "question": 2, "value": "agree", "numValue": 4 },
+      { "question": 3, "value": "agree", "numValue": 4 },
+      { "question": 4, "value": "agree", "numValue": 4 },
+      { "question": 5, "value": "agree", "numValue": 4 },
+      { "question": 6, "value": "agree", "numValue": 4 },
+      { "question": 7, "value": "agree", "numValue": 4 },
+      { "question": 8, "value": "agree", "numValue": 4 },
+      { "question": 9, "value": "agree", "numValue": 4 },
+      { "question": 10, "value": "agree", "numValue": 4 }
+    ],
+    "EmotionValence": "2",
+    "EmotionArousal": "2",
+    "EmotionDominance": "2",
+    "BasicEmotions": [
+      { "question": 1, "value": "disagree", "numValue": 2 },
+      { "question": 2, "value": "disagree", "numValue": 2 },
+      { "question": 3, "value": "disagree", "numValue": 2 },
+      { "question": 4, "value": "disagree", "numValue": 2 },
+      { "question": 5, "value": "disagree", "numValue": 2 },
+      { "question": 6, "value": "disagree", "numValue": 2 }
+    ],
+    "JournalEntry": [
+      "d d d d d",
+      [
+        { "tag": "Sleep", "value": false },
+        { "tag": "Nutrition", "value": false },
+        { "tag": "Physical Activity/Fitness", "value": true },
+        { "tag": "Finance", "value": true },
+        { "tag": "Relationships", "value": true },
+        { "tag": "Problem solving", "value": false },
+        { "tag": "Gratitude (optimism)", "value": false },
+        { "tag": "Mindfulness", "value": false },
+        { "tag": "Values", "value": false }
+      ]
+    ]
+  },
+  "post": {
+    "EmotionValence": "1",
+    "EmotionArousal": "2",
+    "EmotionDominance": "3",
+    "BasicEmotions": [
+      { "question": 1, "value": "stronglyDisagree", "numValue": 1 },
+      { "question": 2, "value": "stronglyAgree", "numValue": 5 },
+      { "question": 3, "value": "stronglyAgree", "numValue": 5 },
+      { "question": 4, "value": "stronglyAgree", "numValue": 5 },
+      { "question": 5, "value": "stronglyAgree", "numValue": 5 },
+      { "question": 6, "value": "notSure", "numValue": 3 }
+    ]
+  }
+}

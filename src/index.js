@@ -43,7 +43,7 @@ export const uiConfig = {
       return false;
     },
   },
-  // signInFlow: "popup",
+  signInFlow: "popup",
   signInSuccessUrl: "./",
   signInOptions: [
     firebase.auth.EmailAuthProvider.PROVIDER_ID,
