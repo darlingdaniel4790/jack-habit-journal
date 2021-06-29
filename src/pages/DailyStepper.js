@@ -154,6 +154,7 @@ const DailyStepper = (props) => {
     if (doneForTheDay) return;
     firestoreDB
       .collection("survey-questions")
+      .orderBy("position", "asc")
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
@@ -435,10 +436,7 @@ const QuestionType1 = (props) => {
         </Button>
       </Grid>
       <Paper className={props.classes.header}>
-        <Typography variant="h6">
-          Please Indicate the extent to which you agree wth the following
-          statements.
-        </Typography>
+        <Typography variant="h6">{props.question}</Typography>
       </Paper>
       {props.questions.map((data, index) => {
         return (
