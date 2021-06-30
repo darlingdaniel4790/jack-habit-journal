@@ -38,6 +38,7 @@ const History = (props) => {
             month = date.getMonth() + 1,
             year = date.getFullYear();
           const responseArray = JSON.parse(doc.data().response);
+          console.log(responseArray.pre.JournalEntry);
           return (
             <Grid item md={9} key={index} style={{ width: "100%" }}>
               <Accordion>
@@ -54,13 +55,19 @@ const History = (props) => {
                       You indicated these topics
                     </Typography>
                     <Typography variant="body1">
-                      {responseArray[5][1].map((data, index) => {
+                      {responseArray.pre.JournalEntry[1].map((data, index) => {
                         if (data.value === true) {
-                          if (index === responseArray[5][1].length - 1)
+                          if (
+                            index ===
+                            responseArray.pre.JournalEntry[1].length - 1
+                          )
                             return " | " + data.tag + " | ";
                           return " | " + data.tag;
                         }
-                        if (index === responseArray[5][1].length - 1)
+                        if (
+                          index ===
+                          responseArray.pre.JournalEntry[1].length - 1
+                        )
                           return " | ";
                         return "";
                       })}
@@ -75,7 +82,7 @@ const History = (props) => {
                       variant="filled"
                       multiline
                       fullWidth
-                      defaultValue={responseArray[5][0]}
+                      defaultValue={responseArray.pre.JournalEntry[0]}
                       InputProps={{
                         readOnly: true,
                       }}
