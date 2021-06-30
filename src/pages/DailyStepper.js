@@ -220,11 +220,12 @@ const DailyStepper = (props) => {
   };
 
   const handleNext = () => {
-    ref.current.scrollIntoView({
-      behavior: "smooth",
-      inline: "nearest",
-      block: "end",
-    });
+    ref.current.scrollIntoViewIfNeeded();
+    // ref.current.scrollIntoView({
+    //   behavior: "smooth",
+    //   inline: "nearest",
+    //   block: "end",
+    // });
 
     // if (centerReached) {
     //   // center reached, second half of questions
@@ -547,13 +548,12 @@ const QuestionType1 = (props) => {
 };
 
 const QuestionType2 = (props) => {
+  console.log("q2 rendering");
   let initialState = "x";
   const [validated, setValidated] = useState(false);
   const [response, setResponse] = useState(initialState);
   if (props.responses[props.keyLabel]) {
-    if (!response) {
-      initialState = props.responses[props.keyLabel];
-    } else if (response === "x") {
+    if (response === "x") {
       setResponse(props.responses[props.keyLabel]);
     }
     if (!validated) setValidated(true);
@@ -578,7 +578,7 @@ const QuestionType2 = (props) => {
     if (validated)
       props.setResponses((prev) => {
         const newState = prev;
-        newState[props.KeyLabel] = response;
+        newState[props.keyLabel] = response;
         return newState;
       });
     setResponse("x");
