@@ -33,11 +33,13 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     padding: theme.spacing(2),
-    backgroundColor: theme.palette.secondary.main,
-    color: "black",
+    backgroundColor:
+      theme.palette.type === "light" ? theme.palette.primary.dark : "#e0e0e0",
+    color: theme.palette.type === "light" ? "white" : "black",
   },
   img: {
-    height: "170px",
+    height: "10rem",
+    padding: "1rem",
     margin: "1rem",
   },
   mobileStepper: {
@@ -50,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   imageScrollBox: {
-    flex: 1,
+    // flex: 1,
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
@@ -62,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
     left: 0,
     bottom: 0,
     zIndex: 999,
+    fontSize: "1.5rem",
     // marginBottom: 0,
     // padding: "0 10px",
   },
@@ -77,6 +80,7 @@ const useStyles = makeStyles((theme) => ({
     },
     bottom: 0,
     zIndex: 999,
+    fontSize: "1.5rem",
     // marginBottom: 0,
     // padding: "0 10px",
   },
@@ -100,6 +104,14 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.secondary.main,
     marginBottom: theme.spacing(2),
   },
+  photoRadioContainer: {
+    display: "flex",
+    width: "inherit",
+    justifyContent: "center",
+    // "& > *": {
+    //   margin: theme.spacing(3),
+    // },
+  },
 }));
 
 const questions = [];
@@ -112,14 +124,15 @@ const DailyStepper = (props) => {
   const [dbFetchError, setDbFetchError] = useState(false);
   const matches = useMediaQuery((theme) => theme.breakpoints.up("sm"));
   const classes = useStyles();
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(1);
   const [centerReached, setCenterReached] = useState(false);
   const [doneForTheDay, setDoneForTheDay] = useState(false);
-  const [cookie, setCookie] = useCookies(["dateStamp"]);
+  const [cookie, setCookie] = useCookies(["theme", "dateStamp"]);
   const ref = useRef();
-  console.log(activeStep);
-  console.log(responses1);
-  console.log(responses2);
+  // console.log(activeStep);
+  // console.log(responses1);
+  // console.log(responses2);
+
   // check timout
   if (cookie.dateStamp) {
     // date cookie exists, check
@@ -299,6 +312,7 @@ const DailyStepper = (props) => {
             handleBack={handleBack}
             responses={centerReached ? responses2 : responses1}
             setResponses={centerReached ? setResponses2 : setResponses1}
+            cookie={cookie}
           />
         );
         break;
@@ -468,7 +482,6 @@ const QuestionType1 = (props) => {
         </Button>
         <Button
           variant="contained"
-          color="primary"
           disabled={!validated}
           onClick={handleNext}
           className={props.classes.stepButtonsRight}
@@ -581,6 +594,10 @@ const QuestionType2 = (props) => {
         photos.happy3,
         photos.happy4,
         photos.happy5,
+        photos.happy6,
+        photos.happy7,
+        photos.happy8,
+        photos.happy9,
       ];
       break;
     case "EmotionArousal":
@@ -590,6 +607,10 @@ const QuestionType2 = (props) => {
         photos.arousal3,
         photos.arousal4,
         photos.arousal5,
+        photos.arousal6,
+        photos.arousal7,
+        photos.arousal8,
+        photos.arousal9,
       ];
       break;
     case "EmotionDominance":
@@ -599,6 +620,10 @@ const QuestionType2 = (props) => {
         photos.control3,
         photos.control4,
         photos.control5,
+        photos.control6,
+        photos.control7,
+        photos.control8,
+        photos.control9,
       ];
       break;
 
@@ -617,7 +642,6 @@ const QuestionType2 = (props) => {
         </Button>
         <Button
           variant="contained"
-          color="primary"
           onClick={handleNext}
           className={props.classes.stepButtonsRight}
           disabled={!validated && !props.responses[props.keyLabel]}
@@ -636,85 +660,107 @@ const QuestionType2 = (props) => {
       </Paper>
       <Paper className={props.classes.optionsSection}>
         <Grid container>
-          <FormControl component="fieldset">
-            <RadioGroup
-              style={{
-                height: "100%",
-                justifyContent: "space-between",
-              }}
-              aria-label="scale"
-              name="scale of 9"
-              value={response}
-              onChange={handleChange}
-            >
-              <FormControlLabel
-                value="1"
-                control={<Radio />}
-                label="1"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                value="2"
-                control={<Radio />}
-                label="2"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                value="3"
-                control={<Radio />}
-                label="3"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                value="4"
-                control={<Radio />}
-                label="4"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                value="5"
-                control={<Radio />}
-                label="5"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                value="6"
-                control={<Radio />}
-                label="6"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                value="7"
-                control={<Radio />}
-                label="7"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                value="8"
-                control={<Radio />}
-                label="8"
-                labelPlacement="start"
-              />
-              <FormControlLabel
-                value="9"
-                control={<Radio />}
-                label="9"
-                labelPlacement="start"
-              />
-            </RadioGroup>
-          </FormControl>
-          <Box className={props.classes.imageScrollBox}>
-            {imageRef.map((url, key) => {
-              return (
-                <img
-                  key={key}
-                  className={props.classes.img}
-                  src={url}
-                  alt={key}
+          <Grid item className={props.classes.photoRadioContainer}>
+            <FormControl component="fieldset">
+              <RadioGroup
+                style={{
+                  height: "100%",
+                  justifyContent: "space-around",
+                }}
+                aria-label="scale"
+                name="scale of 9"
+                value={response}
+                onChange={handleChange}
+              >
+                <FormControlLabel
+                  value="1"
+                  control={<Radio />}
+                  label="1"
+                  labelPlacement="start"
                 />
-              );
-            })}
-          </Box>
+                <FormControlLabel
+                  value="2"
+                  control={<Radio />}
+                  label="2"
+                  labelPlacement="start"
+                />
+                <FormControlLabel
+                  value="3"
+                  control={<Radio />}
+                  label="3"
+                  labelPlacement="start"
+                />
+                <FormControlLabel
+                  value="4"
+                  control={<Radio />}
+                  label="4"
+                  labelPlacement="start"
+                />
+                <FormControlLabel
+                  value="5"
+                  control={<Radio />}
+                  label="5"
+                  labelPlacement="start"
+                />
+                <FormControlLabel
+                  value="6"
+                  control={<Radio />}
+                  label="6"
+                  labelPlacement="start"
+                />
+                <FormControlLabel
+                  value="7"
+                  control={<Radio />}
+                  label="7"
+                  labelPlacement="start"
+                />
+                <FormControlLabel
+                  value="8"
+                  control={<Radio />}
+                  label="8"
+                  labelPlacement="start"
+                />
+                <FormControlLabel
+                  value="9"
+                  control={<Radio />}
+                  label="9"
+                  labelPlacement="start"
+                />
+              </RadioGroup>
+            </FormControl>
+            <Box className={props.classes.imageScrollBox}>
+              {imageRef.map((url, key) => {
+                if (response !== "x" && parseInt(response) === key + 1) {
+                  return (
+                    <img
+                      key={key}
+                      className={props.classes.img}
+                      src={url}
+                      alt={key}
+                      style={{
+                        opacity: "100%",
+                        borderRadius: "10%",
+                        border: `${
+                          props.cookie.theme === "dark"
+                            ? "3px solid white"
+                            : "3px solid black"
+                        }`,
+                      }}
+                    />
+                  );
+                }
+                return (
+                  <img
+                    key={key}
+                    className={props.classes.img}
+                    src={url}
+                    alt={key}
+                    style={{ opacity: "50%" }}
+                  />
+                );
+              })}
+            </Box>
+          </Grid>
         </Grid>
       </Paper>
     </>
@@ -794,7 +840,6 @@ const QuestionType3 = (props) => {
         </Button>
         <Button
           variant="contained"
-          color="primary"
           onClick={handleNext}
           className={props.classes.stepButtonsRight}
           disabled={!valid && !props.responses[props.keyLabel]}
@@ -836,7 +881,6 @@ const QuestionType3 = (props) => {
                     checked={response[1][index].value}
                     onChange={handleTagChange}
                     name={"" + index}
-                    color="primary"
                   />
                 }
                 label={tag}

@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import Menu from "./components/Menu";
 import { CircularProgress, Grid } from "@material-ui/core";
 import firebase from "firebase/app";
-import "firebase/messaging";
+// import "firebase/messaging";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import { useCookies } from "react-cookie";
@@ -18,40 +18,40 @@ function App() {
   const [userInfo, setUserInfo] = useState();
   const [consentSigned, setConsentSigned] = useState(false);
 
-  const messaging = firebase.messaging();
+  // const messaging = firebase.messaging();
 
-  // register user notification token
-  useEffect(() => {
-    if (loggedIn) {
-      messaging
-        .getToken({
-          vapidKey:
-            "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
-        })
-        .then((token) => {
-          if (token) {
-            firestoreDB
-              .collection("participants")
-              .doc(userInfo.uid)
-              .set(
-                {
-                  notificationToken: token,
-                },
-                { merge: true }
-              )
-              .then(() => {
-                console.log("token added");
-              })
-              .catch((error) => {
-                console.error("error adding notification token: ", error);
-              });
-          } else {
-            // ask for permission again if blocked
-          }
-        })
-        .catch((e) => console.log(e));
-    }
-  }, [messaging, loggedIn, userInfo]);
+  // // register user notification token
+  // useEffect(() => {
+  //   if (loggedIn) {
+  //     messaging
+  //       .getToken({
+  //         vapidKey:
+  //           "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
+  //       })
+  //       .then((token) => {
+  //         if (token) {
+  //           firestoreDB
+  //             .collection("participants")
+  //             .doc(userInfo.uid)
+  //             .set(
+  //               {
+  //                 notificationToken: token,
+  //               },
+  //               { merge: true }
+  //             )
+  //             .then(() => {
+  //               console.log("token added");
+  //             })
+  //             .catch((error) => {
+  //               console.error("error adding notification token: ", error);
+  //             });
+  //         } else {
+  //           // ask for permission again if blocked
+  //         }
+  //       })
+  //       .catch((e) => console.log(e));
+  //   }
+  // }, [messaging, loggedIn, userInfo]);
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -93,10 +93,11 @@ function App() {
     palette: {
       type: cookies.theme ? cookies.theme : "light",
       primary: {
-        main: "#80e2dd",
+        main: "#ffffff",
+        dark: "#424242",
       },
       secondary: {
-        main: "#fac82b",
+        main: cookies.theme === "dark" ? "#ffffff" : "#424242",
       },
     },
   });

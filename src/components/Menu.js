@@ -37,6 +37,11 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    backgroundColor:
+      theme.palette.type === "light"
+        ? theme.palette.primary.main
+        : theme.palette.primary.dark,
+    color: theme.palette.type === "light" ? "black" : "white",
   },
   toolbar: {
     justifyContent: "space-between",
