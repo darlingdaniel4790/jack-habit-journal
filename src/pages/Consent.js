@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Consent = (props) => {
+  const [, setCookie] = useCookies(["signed"]);
   const classes = useStyles();
   const [checked, setChecked] = useState(false);
 
@@ -34,6 +35,7 @@ const Consent = (props) => {
   };
 
   const handleConfirm = (e) => {
+    setCookie("signed", true);
     firestoreDB
       .collection("participants")
       .doc(props.userInfo.uid)

@@ -111,7 +111,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Menu(props) {
-  const [cookies, setCookies] = useCookies(["theme"]);
+  const [cookies, setCookies] = useCookies(["theme", "signed"]);
   const [isDarkMode, setIsDarkMode] = useState(() => cookies.theme === "dark");
   const classes = useStyles();
   const theme = useTheme();
@@ -266,7 +266,7 @@ export default function Menu(props) {
               <History userInfo={props.userInfo} />
             </Route>
             <Route path={["/", "/daily-stepper"]}>
-              {props.consentSigned ? (
+              {props.consentSigned || cookies.signed ? (
                 <DailyStepper
                   userInfo={props.userInfo}
                   handleProgress={handleProgress}

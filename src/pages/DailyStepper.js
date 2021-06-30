@@ -202,6 +202,8 @@ const DailyStepper = (props) => {
       pre: { ...responses1 },
       post: { ...responses2 },
     };
+    setResponses1({});
+    setResponses2({});
     response = JSON.stringify(response);
     firestoreDB
       .collection("responses")
