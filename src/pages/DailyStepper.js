@@ -124,7 +124,7 @@ const DailyStepper = (props) => {
   const [dbFetchError, setDbFetchError] = useState(false);
   const matches = useMediaQuery((theme) => theme.breakpoints.up("sm"));
   const classes = useStyles();
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
   const [centerReached, setCenterReached] = useState(false);
   const [doneForTheDay, setDoneForTheDay] = useState(false);
   const [cookie, setCookie] = useCookies(["theme", "dateStamp"]);
@@ -133,12 +133,21 @@ const DailyStepper = (props) => {
   // console.log(responses1);
   // console.log(responses2);
 
+  useEffect(() => {
+    props.handleDoneForTheDay(doneForTheDay);
+  });
+
   // check timout
   if (cookie.dateStamp) {
     // date cookie exists, check
-    if (new Date(cookie.dateStamp).getDate() <= new Date().getDate()) {
+    if (
+      new Date(cookie.dateStamp).getDate() <= new Date().getDate() &&
+      new Date(cookie.dateStamp) < new Date()
+    ) {
       // new day has come, allow retake
-      if (doneForTheDay) setDoneForTheDay(false);
+      if (doneForTheDay) {
+        setDoneForTheDay(false);
+      }
     } else {
       // disable retake
       if (loading) setLoading(false);
@@ -193,9 +202,7 @@ const DailyStepper = (props) => {
       pre: { ...responses1 },
       post: { ...responses2 },
     };
-    console.log(response);
     response = JSON.stringify(response);
-    console.log(response);
     firestoreDB
       .collection("responses")
       .doc(props.userInfo.uid)
@@ -212,6 +219,8 @@ const DailyStepper = (props) => {
         let newStamp = new Date();
         newStamp.setDate(newStamp.getDate() + 1);
         setCookie("dateStamp", newStamp);
+        setActiveStep(0);
+        setCenterReached(false);
       })
       .catch((error) => {
         console.error("error adding answers: ", error);
@@ -255,7 +264,10 @@ const DailyStepper = (props) => {
       setLoading(true);
       uploadToFirestore();
     } else {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      setActiveStep((prevActiveStep) => {
+        props.handleProgress(prevActiveStep + 1, questions.length);
+        return prevActiveStep + 1;
+      });
     }
   };
 
@@ -276,9 +288,11 @@ const DailyStepper = (props) => {
     //   // normal navigation
     //   setActiveStep((prevActiveStep) => prevActiveStep - 1);
     // }
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setActiveStep((prevActiveStep) => {
+      props.handleProgress(prevActiveStep - 1, questions.length);
+      return prevActiveStep - 1;
+    });
   };
-
   let questionShown = "";
   if (!loading && !doneForTheDay && questions.length > 0) {
     switch (questions[activeStep].type) {
@@ -548,7 +562,6 @@ const QuestionType1 = (props) => {
 };
 
 const QuestionType2 = (props) => {
-  console.log("q2 rendering");
   let initialState = "x";
   const [validated, setValidated] = useState(false);
   const [response, setResponse] = useState(initialState);
@@ -730,24 +743,36 @@ const QuestionType2 = (props) => {
             </FormControl>
             <Box className={props.classes.imageScrollBox}>
               {imageRef.map((url, key) => {
-                if (response !== "x" && parseInt(response) === key + 1) {
-                  return (
-                    <img
-                      key={key}
-                      className={props.classes.img}
-                      src={url}
-                      alt={key}
-                      style={{
-                        opacity: "100%",
-                        borderRadius: "10%",
-                        border: `${
-                          props.cookie.theme === "dark"
-                            ? "3px solid white"
-                            : "3px solid black"
-                        }`,
-                      }}
-                    />
-                  );
+                if (response !== "x") {
+                  if (parseInt(response) === key + 1) {
+                    return (
+                      <img
+                        key={key}
+                        className={props.classes.img}
+                        src={url}
+                        alt={key}
+                        style={{
+                          opacity: "100%",
+                          borderRadius: "10%",
+                          border: `${
+                            props.cookie.theme === "dark"
+                              ? "3px solid white"
+                              : "3px solid black"
+                          }`,
+                        }}
+                      />
+                    );
+                  } else {
+                    return (
+                      <img
+                        key={key}
+                        className={props.classes.img}
+                        src={url}
+                        alt={key}
+                        style={{ opacity: "40%" }}
+                      />
+                    );
+                  }
                 }
                 return (
                   <img
@@ -755,7 +780,6 @@ const QuestionType2 = (props) => {
                     className={props.classes.img}
                     src={url}
                     alt={key}
-                    style={{ opacity: "50%" }}
                   />
                 );
               })}

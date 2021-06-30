@@ -7,7 +7,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { makeStyles, useTheme, withStyles } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
@@ -23,10 +23,25 @@ import DailyStepper from "../pages/DailyStepper";
 import History from "../pages/History";
 import { useCookies } from "react-cookie";
 import Consent from "../pages/Consent";
-import { Avatar, Grid } from "@material-ui/core";
+import { Avatar, Grid, LinearProgress } from "@material-ui/core";
 import { Brightness3, Brightness7 } from "@material-ui/icons";
 
 const drawerWidth = 240;
+
+const BorderLinearProgress = withStyles((theme) => ({
+  root: {
+    height: 10,
+  },
+  colorPrimary: {
+    backgroundColor:
+      theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
+  },
+  bar: {
+    borderRadius: 5,
+    backgroundColor:
+      theme.palette.type === "light" ? theme.palette.primary.dark : "#e0e0e0",
+  },
+}))(LinearProgress);
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -101,6 +116,20 @@ export default function Menu(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [progress, setProgress] = useState(0);
+  const [doneForTheDay, setDoneForTheDay] = useState(true);
+
+  const handleProgress = (activeStep, questionsLength) => {
+    setProgress((activeStep * 100) / (questionsLength - 1));
+  };
+
+  const handleDoneForTheDay = (done) => {
+    if (done && !doneForTheDay) {
+      setDoneForTheDay(true);
+    } else if (!done && doneForTheDay) {
+      setDoneForTheDay(false);
+    }
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -164,6 +193,9 @@ export default function Menu(props) {
             src={props.userInfo.photoURL}
           ></Avatar>
         </Toolbar>
+        {!doneForTheDay && (
+          <BorderLinearProgress variant="determinate" value={progress} />
+        )}
       </AppBar>
       <Router>
         <Drawer
@@ -235,7 +267,12 @@ export default function Menu(props) {
             </Route>
             <Route path={["/", "/daily-stepper"]}>
               {props.consentSigned ? (
-                <DailyStepper userInfo={props.userInfo} />
+                <DailyStepper
+                  userInfo={props.userInfo}
+                  handleProgress={handleProgress}
+                  handleDoneForTheDay={handleDoneForTheDay}
+                  doneForTheDay={doneForTheDay}
+                />
               ) : (
                 <Grid container justify="center">
                   <Consent
