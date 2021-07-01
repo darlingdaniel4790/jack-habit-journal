@@ -17,7 +17,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState();
   const [consentSigned, setConsentSigned] = useState(false);
-
+  const [cookies, setCookies] = useCookies(["theme", "signed"]);
   // const messaging = firebase.messaging();
 
   // // register user notification token
@@ -65,6 +65,7 @@ function App() {
           .then((snapshot) => {
             if (snapshot.exists) {
               // user has accepted terms and been added to database
+              setCookies("signed", true);
               setConsentSigned(true);
             }
           })
@@ -88,7 +89,6 @@ function App() {
     firebase.auth().signOut();
   };
 
-  const [cookies] = useCookies(["theme"]);
   const theme = createMuiTheme({
     palette: {
       type: cookies.theme ? cookies.theme : "light",

@@ -165,6 +165,10 @@ export default function Menu(props) {
       break;
   }
 
+  if (title !== "Daily Journaling" && progress !== 0) {
+    setProgress(0);
+  }
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -181,7 +185,7 @@ export default function Menu(props) {
             onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
-            disabled={props.consentSigned ? false : true}
+            disabled={props.consentSigned || cookies.signed ? false : true}
           >
             <MenuIcon />
           </IconButton>
@@ -193,7 +197,7 @@ export default function Menu(props) {
             src={props.userInfo.photoURL}
           ></Avatar>
         </Toolbar>
-        {!doneForTheDay && (
+        {!doneForTheDay && title === "Daily Journaling" && (
           <BorderLinearProgress variant="determinate" value={progress} />
         )}
       </AppBar>

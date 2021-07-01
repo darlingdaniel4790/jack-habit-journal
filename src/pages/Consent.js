@@ -78,7 +78,6 @@ const Consent = (props) => {
               checked={checked}
               onChange={handleChange}
               name="checkedB"
-              color="primary"
             />
           }
           label="I agree"

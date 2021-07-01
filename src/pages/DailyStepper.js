@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   stepButtonsLeft: {
     // bottom: 0,
     margin: theme.spacing(1),
-    position: "absolute",
+    position: "fixed",
     left: 0,
     bottom: 0,
     zIndex: 999,
@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
   stepButtonsRight: {
     // bottom: 0,
     margin: theme.spacing(1),
-    position: "absolute",
+    position: "fixed",
     [theme.breakpoints.down("sm")]: {
       right: 0,
     },
@@ -114,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const questions = [];
+let questions = [];
 
 const DailyStepper = (props) => {
   let response;
@@ -176,6 +176,7 @@ const DailyStepper = (props) => {
   // fetch questions from firestore
   useEffect(() => {
     if (doneForTheDay) return;
+    questions = [];
     firestoreDB
       .collection("survey-questions")
       .orderBy("position", "asc")
@@ -193,7 +194,6 @@ const DailyStepper = (props) => {
         setLoading(false);
         setDbFetchError(true);
       });
-    return () => {};
   }, [doneForTheDay]);
 
   // write answers to firestore
