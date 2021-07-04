@@ -10,8 +10,9 @@ const Login = (props) => {
   }, []);
   return (
     <Grid
+      spacing={2}
       container
-      direction="row"
+      direction="column"
       alignItems="center"
       justify="center"
       style={{ height: "100%" }}
@@ -22,7 +23,6 @@ const Login = (props) => {
           alt="jack-habbit-logo"
           src={icon}
           style={{
-            width: 200,
             height: 200,
             display: "block",
             margin: "0 auto",
@@ -30,11 +30,11 @@ const Login = (props) => {
         />
         <Container className={props.classes}>
           <Typography variant="h4">
-            Welcome to the JackHabbit Journal.
+            Welcome to the Daily Journaling App
           </Typography>
           <hr />
           <Typography variant="h5">
-            Choose your preferred sign-in method to continue.
+            Choose your preferred sign-in method to continue
           </Typography>
         </Container>
       </Grid>

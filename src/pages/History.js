@@ -14,6 +14,21 @@ import { useState } from "react";
 import firebase from "firebase/app";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 const History = (props) => {
   const [list, setList] = useState("");
   const [loading, setLoading] = useState(true);
@@ -35,7 +50,7 @@ const History = (props) => {
               doc.data().date.nanoseconds
             ).toDate(),
             day = date.getDate(),
-            month = date.getMonth() + 1,
+            month = months[date.getMonth()],
             year = date.getFullYear();
           const responseArray = JSON.parse(doc.data().response);
           console.log(responseArray.pre.JournalEntry);
