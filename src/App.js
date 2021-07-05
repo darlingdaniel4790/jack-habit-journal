@@ -2,15 +2,49 @@ import React, { useEffect, useState } from "react";
 import classes from "./App.module.css";
 import Login from "./pages/Login";
 import Menu from "./components/Menu";
-import { CircularProgress, Grid } from "@material-ui/core";
+import { CircularProgress, Grid, Snackbar } from "@material-ui/core";
+import Button from "@material-ui/core/Button";
 import firebase from "firebase/app";
 // import "firebase/messaging";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import { useCookies } from "react-cookie";
 import { firestoreDB } from ".";
+import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 
 function App() {
+  const [showReload, setShowReload] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState(null);
+
+  const onSWUpdate = (registration) => {
+    setShowReload(true);
+    setWaitingWorker(registration.waiting);
+  };
+
+  useEffect(() => {
+    serviceWorkerRegistration.register({ onUpdate: onSWUpdate });
+  }, []);
+
+  const reloadPage = () => {
+    waitingWorker?.postMessage({ type: "SKIP_WAITING" });
+    setShowReload(false);
+    window.location.reload(true);
+  };
+
+  const snackbar = (
+    <Snackbar
+      open={showReload}
+      message="A new version is available!"
+      onClick={reloadPage}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      action={
+        <Button color="inherit" size="small" onClick={reloadPage}>
+          Reload
+        </Button>
+      }
+    />
+  );
+
   // console.log("\nAPP.JS RENDERING");
   const [showUI, setShowUI] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -105,6 +139,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Grid container direction="column" className={classes.app}>
+        {snackbar}
         {loading && (
           <Grid
             style={{ height: "100%" }}

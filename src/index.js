@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
-import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+// import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
 import { CookiesProvider } from "react-cookie";
 
@@ -52,6 +52,23 @@ export const uiConfig = {
   ],
 };
 
+firebase
+  .firestore()
+  .enablePersistence()
+  .catch((err) => {
+    if (err.code === "failed-precondition") {
+      // Multiple tabs open, persistence can only be enabled
+      // in one tab at a a time.
+      // ...
+      console.log("all tabs need to be closed to enable persistence");
+    } else if (err.code === "unimplemented") {
+      // The current browser does not support all of the
+      // features required to enable persistence
+      // ...
+      console.log("this browser does not support persistence");
+    }
+  });
+
 // Initialize the FirebaseUI Widget using Firebase.
 export const ui = new firebaseui.auth.AuthUI(firebase.auth());
 
@@ -67,7 +84,7 @@ ReactDOM.render(
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://cra.link/PWA
-serviceWorkerRegistration.register();
+// serviceWorkerRegistration.register();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

@@ -1,6 +1,6 @@
 {
-  "short_name": "JackHabbit",
-  "name": "JackHabbit Journal",
+  "short_name": "Journal",
+  "name": "Daily Journal",
   "description": "This is your personal daily journaling app for the JackHabbit research.",
   "orientation": "portrait",
   "icons": [

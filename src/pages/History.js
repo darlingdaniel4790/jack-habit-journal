@@ -39,6 +39,7 @@ const History = (props) => {
       .collection("responses")
       .doc(props.userInfo.uid)
       .collection("responses")
+      .orderBy("date", "desc")
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
@@ -53,7 +54,6 @@ const History = (props) => {
             month = months[date.getMonth()],
             year = date.getFullYear();
           const responseArray = JSON.parse(doc.data().response);
-          console.log(responseArray.pre.JournalEntry);
           return (
             <Grid item md={9} key={index} style={{ width: "100%" }}>
               <Accordion>

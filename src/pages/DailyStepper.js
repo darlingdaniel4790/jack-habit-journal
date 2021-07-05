@@ -117,6 +117,7 @@ const useStyles = makeStyles((theme) => ({
 let questions = [];
 
 const DailyStepper = (props) => {
+  console.log("stepper rendering");
   let response;
   const [responses1, setResponses1] = useState({});
   const [responses2, setResponses2] = useState({});
@@ -129,6 +130,7 @@ const DailyStepper = (props) => {
   const [doneForTheDay, setDoneForTheDay] = useState(false);
   const [cookie, setCookie] = useCookies(["theme", "dateStamp"]);
   const ref = useRef();
+  const [, setRefresher] = useState(false);
   // console.log(activeStep);
   // console.log(responses1);
   // console.log(responses2);
@@ -141,7 +143,7 @@ const DailyStepper = (props) => {
   if (cookie.dateStamp) {
     // date cookie exists, check
     if (
-      new Date(cookie.dateStamp).getDate() <= new Date().getDate() &&
+      // new Date(cookie.dateStamp).getDate() <= new Date().getDate() &&
       new Date(cookie.dateStamp) < new Date()
     ) {
       // new day has come, allow retake
@@ -160,7 +162,7 @@ const DailyStepper = (props) => {
     let timer;
     if (doneForTheDay) {
       timer = setInterval(() => {
-        setCenterReached(false);
+        setRefresher((prev) => !prev);
         console.log("re-rendering");
       }, 3000);
     } else {
@@ -205,6 +207,19 @@ const DailyStepper = (props) => {
     setResponses1({});
     setResponses2({});
     response = JSON.stringify(response);
+    if (!navigator.onLine) {
+      // offline persistence will handle upload, mark as done for the day
+      console.log("offline, will upload later.");
+      setDoneForTheDay(true);
+      // set the timout duration for retake
+      let newStamp = new Date();
+      newStamp.setMinutes(newStamp.getMinutes() + 1);
+      // newStamp.setDate(newStamp.getDate() + 1);
+      setCookie("dateStamp", newStamp);
+      setActiveStep(0);
+      setCenterReached(false);
+      setLoading(false);
+    }
     firestoreDB
       .collection("responses")
       .doc(props.userInfo.uid)
@@ -219,7 +234,8 @@ const DailyStepper = (props) => {
         setDoneForTheDay(true);
         // set the timout duration for retake
         let newStamp = new Date();
-        newStamp.setDate(newStamp.getDate() + 1);
+        newStamp.setMinutes(newStamp.getMinutes() + 1);
+        // newStamp.setDate(newStamp.getDate() + 1);
         setCookie("dateStamp", newStamp);
         setActiveStep(0);
         setCenterReached(false);
@@ -264,6 +280,7 @@ const DailyStepper = (props) => {
       // done for the day
       // upload to db
       setLoading(true);
+      props.handleProgress(0, 10);
       uploadToFirestore();
     } else {
       setActiveStep((prevActiveStep) => {
