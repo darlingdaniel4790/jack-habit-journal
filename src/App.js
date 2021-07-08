@@ -38,7 +38,12 @@ function App() {
       onClick={reloadPage}
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       action={
-        <Button color="inherit" size="small" onClick={reloadPage}>
+        <Button
+          variant="contained"
+          color="inherit"
+          size="small"
+          onClick={reloadPage}
+        >
           Reload
         </Button>
       }

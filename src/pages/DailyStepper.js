@@ -117,7 +117,6 @@ const useStyles = makeStyles((theme) => ({
 let questions = [];
 
 const DailyStepper = (props) => {
-  console.log("stepper rendering");
   let response;
   const [responses1, setResponses1] = useState({});
   const [responses2, setResponses2] = useState({});
