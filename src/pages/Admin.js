@@ -151,7 +151,7 @@ const Admin = (props) => {
         });
         try {
           const csv = parse(objects);
-          download(csv, "response.txt", "text/plain");
+          download(csv, "response.csv", "text/plain");
         } catch (err) {
           console.error(err);
         }

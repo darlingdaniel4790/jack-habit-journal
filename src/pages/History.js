@@ -37,7 +37,7 @@ const History = (props) => {
     firestoreDB
       .collection("responses")
       .where("id", "==", props.userInfo.uid)
-      // .orderBy("date", "desc")
+      // .orderBy("date", "desc") // doesn't work with ==
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
