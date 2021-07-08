@@ -11,6 +11,7 @@ import { ThemeProvider } from "@material-ui/styles";
 import { useCookies } from "react-cookie";
 import { firestoreDB } from ".";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+import Admin from "./pages/Admin";
 
 function App() {
   const [showReload, setShowReload] = useState(false);
@@ -54,7 +55,7 @@ function App() {
   const [showUI, setShowUI] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userInfo, setUserInfo] = useState();
+  const [userInfo, setUserInfo] = useState({});
   const [consentSigned, setConsentSigned] = useState(false);
   const [cookies, setCookies] = useCookies(["theme", "signed"]);
   // const messaging = firebase.messaging();
@@ -91,41 +92,44 @@ function App() {
   //       .catch((e) => console.log(e));
   //   }
   // }, [messaging, loggedIn, userInfo]);
-
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       // console.log("auth state changing");
       if (loggedIn) return;
       if (user) {
-        firestoreDB
-          .collection("participants")
-          .doc(user.uid)
-          .get()
-          .then((snapshot) => {
-            if (snapshot.exists) {
-              // user has accepted terms and been added to database
-              setCookies("signed", true);
-              setConsentSigned(true);
-            }
-          })
-          .catch((e) => {
-            console.log(e);
-          })
-          .finally(() => {
-            setUserInfo(user);
-            if (showUI) setShowUI(false);
-            setLoggedIn(true);
-          });
+        let admin;
+        // check if user exists and if admin
+        if (userInfo.admin === undefined)
+          firestoreDB
+            .collection("participants")
+            .doc(user.uid)
+            .get()
+            .then((snapshot) => {
+              if (snapshot.exists) {
+                // user has accepted terms and been added to database
+                setCookies("signed", true);
+                setConsentSigned(true);
+                admin = snapshot.data().admin;
+              }
+            })
+            .catch((e) => {
+              console.log(e);
+            })
+            .finally(() => {
+              setUserInfo({ ...user, admin });
+              if (showUI) setShowUI(false);
+              setLoggedIn(true);
+            });
       } else {
         if (!showUI) setShowUI(true);
       }
       if (loading) setLoading(false);
     });
   });
-
   const handleLogout = () => {
     setLoggedIn(false);
     firebase.auth().signOut();
+    setUserInfo({});
   };
 
   const theme = createMuiTheme({
@@ -156,13 +160,16 @@ function App() {
             <CircularProgress />
           </Grid>
         )}
-        {!loading && loggedIn && (
+        {!loading && loggedIn && !userInfo.admin && (
           <Menu
             handleLogout={handleLogout}
             userInfo={userInfo}
             consentSigned={consentSigned}
             setConsentSigned={setConsentSigned}
           />
+        )}
+        {!loading && loggedIn && userInfo.admin && (
+          <Admin handleLogout={handleLogout} />
         )}
         {!loggedIn && showUI && <Login classes={classes["login-container"]} />}
       </Grid>

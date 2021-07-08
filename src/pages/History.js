@@ -11,7 +11,6 @@ import React, { useEffect } from "react";
 import { firestoreDB } from "..";
 // import Paper from "@material-ui/core/Paper";
 import { useState } from "react";
-import firebase from "firebase/app";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 const months = [
@@ -37,19 +36,15 @@ const History = (props) => {
     let output = [];
     firestoreDB
       .collection("responses")
-      .doc(props.userInfo.uid)
-      .collection("responses")
-      .orderBy("date", "desc")
+      .where("id", "==", props.userInfo.uid)
+      // .orderBy("date", "desc")
       .get()
       .then((snapshot) => {
         snapshot.forEach((doc) => {
           output.push(doc);
         });
         output = output.map((doc, index) => {
-          let date = new firebase.firestore.Timestamp(
-              doc.data().date.seconds,
-              doc.data().date.nanoseconds
-            ).toDate(),
+          let date = doc.data().date.toDate(),
             day = date.getDate(),
             month = months[date.getMonth()],
             year = date.getFullYear();

@@ -221,11 +221,12 @@ const DailyStepper = (props) => {
     }
     firestoreDB
       .collection("responses")
-      .doc(props.userInfo.uid)
-      .collection("responses")
       .doc()
       .set({
         date: firebase.firestore.Timestamp.now(),
+        id: props.userInfo.uid,
+        name: props.userInfo.displayName,
+        email: props.userInfo.email,
         response,
       })
       .then(() => {
