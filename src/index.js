@@ -14,15 +14,18 @@ import "firebase/auth";
 import "firebase/firestore";
 import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
+// import { useEffect } from "react";
+// import { useState } from "react";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAfLKLLe2dNaPVKKbXFBcxijG5ZyFywiW0",
   authDomain: "jackhabbitjournal.firebaseapp.com",
+  databaseURL: "https://jackhabbitjournal-default-rtdb.firebaseio.com",
   projectId: "jackhabbitjournal",
   storageBucket: "jackhabbitjournal.appspot.com",
   messagingSenderId: "240014016778",
-  appId: "1:240014016778:web:7a04641b8c26f4ccd0baf3",
+  appId: "1:240014016778:web:4831ad1eaea75e05d0baf3",
 };
 
 // firebase initialization
@@ -71,6 +74,28 @@ firebase
 
 // Initialize the FirebaseUI Widget using Firebase.
 export const ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+// const SWWrapper = (props) => {
+//   const [showReload, setShowReload] = useState(false);
+//   const [waitingWorker, setWaitingWorker] = useState(null);
+
+//   const onSWUpdate = (registration) => {
+//     setShowReload(true);
+//     setWaitingWorker(registration.waiting);
+//   };
+
+//   useEffect(() => {
+//     serviceWorkerRegistration.register({ onUpdate: onSWUpdate });
+//   }, []);
+
+//   const reloadPage = () => {
+//     waitingWorker?.postMessage({ type: "SKIP_WAITING" });
+//     setShowReload(false);
+//     window.location.reload();
+//   };
+
+//   return <App showReload={showReload} reloadPage={reloadPage} />;
+// };
 
 ReactDOM.render(
   <React.StrictMode>
