@@ -22,8 +22,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import DailyStepper from "../pages/DailyStepper";
 import History from "../pages/History";
 import { useCookies } from "react-cookie";
-import Consent from "../pages/Consent";
-import { Avatar, Grid, LinearProgress } from "@material-ui/core";
+import { Avatar, LinearProgress } from "@material-ui/core";
 import { Brightness3, Brightness7 } from "@material-ui/icons";
 
 const drawerWidth = 240;
@@ -111,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Menu(props) {
-  const [cookies, setCookies] = useCookies(["theme", "signed"]);
+  const [cookies, setCookies] = useCookies(["theme"]);
   const [isDarkMode, setIsDarkMode] = useState(() => cookies.theme === "dark");
   const classes = useStyles();
   const theme = useTheme();
@@ -185,7 +184,6 @@ export default function Menu(props) {
             onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
-            disabled={props.consentSigned || cookies.signed ? false : true}
           >
             <MenuIcon />
           </IconButton>
@@ -270,21 +268,12 @@ export default function Menu(props) {
               <History userInfo={props.userInfo} />
             </Route>
             <Route path={["/", "/daily-stepper"]}>
-              {props.consentSigned || cookies.signed ? (
-                <DailyStepper
-                  userInfo={props.userInfo}
-                  handleProgress={handleProgress}
-                  handleDoneForTheDay={handleDoneForTheDay}
-                  doneForTheDay={doneForTheDay}
-                />
-              ) : (
-                <Grid container justify="center">
-                  <Consent
-                    userInfo={props.userInfo}
-                    setConsentSigned={props.setConsentSigned}
-                  />
-                </Grid>
-              )}
+              <DailyStepper
+                userInfo={props.userInfo}
+                handleProgress={handleProgress}
+                handleDoneForTheDay={handleDoneForTheDay}
+                doneForTheDay={doneForTheDay}
+              />
             </Route>
           </Switch>
         </main>

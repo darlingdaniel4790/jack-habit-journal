@@ -12,6 +12,7 @@ import { useCookies } from "react-cookie";
 import { firestoreDB } from ".";
 // import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import Admin from "./pages/Admin";
+import Consent from "./pages/Consent";
 
 function App(props) {
   // const snackbar = (
@@ -38,8 +39,8 @@ function App(props) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState({});
-  const [consentSigned, setConsentSigned] = useState(false);
-  const [cookies, setCookies] = useCookies(["theme", "signed"]);
+  const [cookies] = useCookies(["theme", "signed"]);
+  const [consentSigned, setConsentSigned] = useState(cookies.signed);
   // const messaging = firebase.messaging();
 
   // // register user notification token
@@ -76,8 +77,8 @@ function App(props) {
   // }, [messaging, loggedIn, userInfo]);
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      // console.log("auth state changing");
       if (loggedIn) return;
+      console.log("auth state changing");
       if (user) {
         let admin;
         // check if user exists and if admin
@@ -88,10 +89,29 @@ function App(props) {
             .get()
             .then((snapshot) => {
               if (snapshot.exists) {
-                // user has accepted terms and been added to database
-                setCookies("signed", true);
-                setConsentSigned(true);
+                console.log("user exists");
                 admin = snapshot.data().admin;
+              } else {
+                console.log("user doesn't exist");
+                // add user to db
+                firestoreDB
+                  .collection("participants")
+                  .doc(user.uid)
+                  .set(
+                    {
+                      id: user.uid,
+                      name: user.displayName,
+                      email: user.email,
+                      regDate: firebase.firestore.Timestamp.now(),
+                    },
+                    { merge: true }
+                  )
+                  .then(() => {
+                    console.log("user added to database");
+                  })
+                  .catch((error) => {
+                    console.error("error adding user: ", error);
+                  });
               }
             })
             .catch((e) => {
@@ -121,6 +141,7 @@ function App(props) {
         main: "#ffffff",
         dark: "#424242",
       },
+
       secondary: {
         main: cookies.theme === "dark" ? "#ffffff" : "#424242",
       },
@@ -142,18 +163,25 @@ function App(props) {
             <CircularProgress />
           </Grid>
         )}
-        {!loading && loggedIn && !userInfo.admin && (
+        {!loading && loggedIn && !userInfo.admin && consentSigned && (
           <Menu
             handleLogout={handleLogout}
             userInfo={userInfo}
-            consentSigned={consentSigned}
-            setConsentSigned={setConsentSigned}
+            // consentSigned={consentSigned}
+            // setConsentSigned={setConsentSigned}
           />
+        )}
+        {!loading && !userInfo.admin && !consentSigned && (
+          <Grid container justify="center">
+            <Consent userInfo={userInfo} setConsentSigned={setConsentSigned} />
+          </Grid>
         )}
         {!loading && loggedIn && userInfo.admin && (
           <Admin handleLogout={handleLogout} />
         )}
-        {!loggedIn && showUI && <Login classes={classes["login-container"]} />}
+        {!loggedIn && consentSigned && showUI && (
+          <Login classes={classes["login-container"]} />
+        )}
       </Grid>
     </ThemeProvider>
   );
