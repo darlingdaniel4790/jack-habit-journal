@@ -9,7 +9,7 @@ var firebaseConfig = {
   projectId: "jackhabbitjournal",
   storageBucket: "jackhabbitjournal.appspot.com",
   messagingSenderId: "240014016778",
-  appId: "1:240014016778:web:7a04641b8c26f4ccd0baf3",
+  appId: "1:240014016778:web:4831ad1eaea75e05d0baf3",
 };
 
 firebase.initializeApp(firebaseConfig);

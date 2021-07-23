@@ -41,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
     height: "10rem",
     padding: "1rem",
     margin: "1rem",
+    cursor: "pointer",
   },
   mobileStepper: {
     display: "fixed",
@@ -662,6 +663,12 @@ const QuestionType2 = (props) => {
     default:
       break;
   }
+
+  const handlePicClick = (e) => {
+    setValidated(true);
+    setResponse((parseInt(e.target.alt) + 1).toString());
+  };
+
   return (
     <>
       <Grid container>
@@ -766,6 +773,7 @@ const QuestionType2 = (props) => {
                   if (parseInt(response) === key + 1) {
                     return (
                       <img
+                        onClick={handlePicClick}
                         key={key}
                         className={props.classes.img}
                         src={url}
@@ -784,6 +792,7 @@ const QuestionType2 = (props) => {
                   } else {
                     return (
                       <img
+                        onClick={handlePicClick}
                         key={key}
                         className={props.classes.img}
                         src={url}
@@ -795,6 +804,7 @@ const QuestionType2 = (props) => {
                 }
                 return (
                   <img
+                    onClick={handlePicClick}
                     key={key}
                     className={props.classes.img}
                     src={url}
@@ -842,6 +852,7 @@ const QuestionType3 = (props) => {
   };
 
   const validate = (value) => {
+    if (value.length === 0) return;
     let strLength = value.match(/\S+/g).length;
     if (strLength >= minWords) {
       setValid(true);
@@ -903,6 +914,7 @@ const QuestionType3 = (props) => {
           id="journal-entry"
           value={response[0]}
           onChange={handleChange}
+          placeholder="Share your thoughts and experience including your problems, ideas, joys, achievements, hopes, fears, or expectations. Feel free to express yourself, as there is no limit to the number of words in your journal."
         />
         <Typography variant="caption" display="block" gutterBottom>
           Minimum {minWords} words.

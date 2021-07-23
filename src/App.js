@@ -12,7 +12,7 @@ import { useCookies } from "react-cookie";
 import { firestoreDB } from ".";
 // import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import Admin from "./pages/Admin";
-import Consent from "./pages/Consent";
+// import Consent from "./pages/Consent";
 
 function App(props) {
   // const snackbar = (
@@ -40,45 +40,46 @@ function App(props) {
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState({});
   const [cookies] = useCookies(["theme", "signed"]);
-  const [consentSigned, setConsentSigned] = useState(cookies.signed);
+  // const [consentSigned, setConsentSigned] = useState(cookies.signed);
   // const messaging = firebase.messaging();
 
-  // // register user notification token
+  // register user notification token
   // useEffect(() => {
+  //   messaging
+  //     .getToken({
+  //       vapidKey:
+  //         "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
+  //     })
+  //     .then((token) => {
+  //       if (token) {
+  //         // firestoreDB
+  //         //   .collection("participants")
+  //         //   .doc(userInfo.uid)
+  //         //   .set(
+  //         //     {
+  //         //       notificationToken: token,
+  //         //     },
+  //         //     { merge: true }
+  //         //   )
+  //         //   .then(() => {
+  //         //     console.log("token added");
+  //         //   })
+  //         //   .catch((error) => {
+  //         //     console.error("error adding notification token: ", error);
+  //         //   });
+  //         console.log(token);
+  //       } else {
+  //         // ask for permission again if blocked
+  //       }
+  //     })
+  //     .catch((e) => console.log(e));
   //   if (loggedIn) {
-  //     messaging
-  //       .getToken({
-  //         vapidKey:
-  //           "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
-  //       })
-  //       .then((token) => {
-  //         if (token) {
-  //           firestoreDB
-  //             .collection("participants")
-  //             .doc(userInfo.uid)
-  //             .set(
-  //               {
-  //                 notificationToken: token,
-  //               },
-  //               { merge: true }
-  //             )
-  //             .then(() => {
-  //               console.log("token added");
-  //             })
-  //             .catch((error) => {
-  //               console.error("error adding notification token: ", error);
-  //             });
-  //         } else {
-  //           // ask for permission again if blocked
-  //         }
-  //       })
-  //       .catch((e) => console.log(e));
   //   }
   // }, [messaging, loggedIn, userInfo]);
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (loggedIn) return;
-      console.log("auth state changing");
+      // console.log("auth state changing");
       if (user) {
         let admin;
         // check if user exists and if admin
@@ -89,10 +90,10 @@ function App(props) {
             .get()
             .then((snapshot) => {
               if (snapshot.exists) {
-                console.log("user exists");
+                // console.log("user exists");
                 admin = snapshot.data().admin;
               } else {
-                console.log("user doesn't exist");
+                // console.log("user doesn't exist");
                 // add user to db
                 firestoreDB
                   .collection("participants")
@@ -163,7 +164,8 @@ function App(props) {
             <CircularProgress />
           </Grid>
         )}
-        {!loading && loggedIn && !userInfo.admin && consentSigned && (
+        {!loading && loggedIn && !userInfo.admin && (
+          //consentSigned &&
           <Menu
             handleLogout={handleLogout}
             userInfo={userInfo}
@@ -171,17 +173,17 @@ function App(props) {
             // setConsentSigned={setConsentSigned}
           />
         )}
-        {!loading && !userInfo.admin && !consentSigned && (
+        {/* {!loading && !userInfo.admin && !consentSigned && (
           <Grid container justify="center">
             <Consent userInfo={userInfo} setConsentSigned={setConsentSigned} />
           </Grid>
-        )}
+        )} */}
         {!loading && loggedIn && userInfo.admin && (
           <Admin handleLogout={handleLogout} />
         )}
-        {!loggedIn && consentSigned && showUI && (
-          <Login classes={classes["login-container"]} />
-        )}
+        {!loggedIn &&
+          //consentSigned &&
+          showUI && <Login classes={classes["login-container"]} />}
       </Grid>
     </ThemeProvider>
   );
