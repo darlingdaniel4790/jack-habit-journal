@@ -5,7 +5,7 @@ import Menu from "./components/Menu";
 import { CircularProgress, Grid } from "@material-ui/core";
 // import Button from "@material-ui/core/Button";
 import firebase from "firebase/app";
-// import "firebase/messaging";
+import "firebase/messaging";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import { useCookies } from "react-cookie";
@@ -41,41 +41,59 @@ function App(props) {
   const [userInfo, setUserInfo] = useState({});
   const [cookies] = useCookies(["theme", "signed"]);
   // const [consentSigned, setConsentSigned] = useState(cookies.signed);
-  // const messaging = firebase.messaging();
+
+  function iOS() {
+    return (
+      [
+        "iPad Simulator",
+        "iPhone Simulator",
+        "iPod Simulator",
+        "iPad",
+        "iPhone",
+        "iPod",
+      ].includes(navigator.platform) ||
+      // iPad on iOS 13 detection
+      (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+    );
+  }
 
   // register user notification token
-  // useEffect(() => {
-  //   messaging
-  //     .getToken({
-  //       vapidKey:
-  //         "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
-  //     })
-  //     .then((token) => {
-  //       if (token) {
-  //         // firestoreDB
-  //         //   .collection("participants")
-  //         //   .doc(userInfo.uid)
-  //         //   .set(
-  //         //     {
-  //         //       notificationToken: token,
-  //         //     },
-  //         //     { merge: true }
-  //         //   )
-  //         //   .then(() => {
-  //         //     console.log("token added");
-  //         //   })
-  //         //   .catch((error) => {
-  //         //     console.error("error adding notification token: ", error);
-  //         //   });
-  //         console.log(token);
-  //       } else {
-  //         // ask for permission again if blocked
-  //       }
-  //     })
-  //     .catch((e) => console.log(e));
-  //   if (loggedIn) {
-  //   }
-  // }, [messaging, loggedIn, userInfo]);
+  useEffect(() => {
+    if (loggedIn) {
+      if (!iOS()) {
+        const messaging = firebase.messaging();
+        messaging
+          .getToken({
+            vapidKey:
+              "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
+          })
+          .then((token) => {
+            if (token) {
+              // firestoreDB
+              //   .collection("participants")
+              //   .doc(userInfo.uid)
+              //   .set(
+              //     {
+              //       notificationToken: token,
+              //     },
+              //     { merge: true }
+              //   )
+              //   .then(() => {
+              //     console.log("token added");
+              //   })
+              //   .catch((error) => {
+              //     console.error("error adding notification token: ", error);
+              //   });
+              // console.log(token);
+            } else {
+              // ask for permission again if blocked
+            }
+          })
+          .catch((e) => console.log(e));
+      }
+    }
+  }, [loggedIn, userInfo]);
+
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (loggedIn) return;
