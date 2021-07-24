@@ -835,7 +835,12 @@ const QuestionType3 = (props) => {
     initialState = ["", tagState];
   }
   const [response, setResponse] = useState(initialState);
-  const minWords = 5;
+  const [tagSelected, setTagSelected] = useState(false);
+  const [tagController, setTagController] = useState(0);
+  const [textFieldValid, setTextFieldValid] = useState(false);
+
+  const minWords = 10;
+
   const handleChange = (e) => {
     setResponse((prev) => {
       prev[0] = e.target.value;
@@ -849,12 +854,28 @@ const QuestionType3 = (props) => {
       prev[1][e.target.name].value = !prev[1][e.target.name].value;
       return [...prev];
     });
+    if (e.target.checked) {
+      if (tagController === 0) {
+        setTagSelected(true);
+        if (textFieldValid) {
+          setValid(true);
+        }
+      }
+      setTagController((prev) => prev + 1);
+    } else {
+      if (tagController === 1) {
+        setTagSelected(false);
+        setValid(false);
+      }
+      setTagController((prev) => prev - 1);
+    }
   };
 
   const validate = (value) => {
     if (value.length === 0) return;
     let strLength = value.match(/\S+/g).length;
-    if (strLength >= minWords) {
+    setTextFieldValid(strLength >= minWords);
+    if (strLength >= minWords && tagSelected) {
       setValid(true);
     } else {
       setValid(false);

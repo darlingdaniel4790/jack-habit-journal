@@ -59,39 +59,39 @@ function App(props) {
 
   // register user notification token
   useEffect(() => {
-    if (loggedIn) {
-      if (!iOS()) {
-        const messaging = firebase.messaging();
-        messaging
-          .getToken({
-            vapidKey:
-              "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
-          })
-          .then((token) => {
-            if (token) {
-              // firestoreDB
-              //   .collection("participants")
-              //   .doc(userInfo.uid)
-              //   .set(
-              //     {
-              //       notificationToken: token,
-              //     },
-              //     { merge: true }
-              //   )
-              //   .then(() => {
-              //     console.log("token added");
-              //   })
-              //   .catch((error) => {
-              //     console.error("error adding notification token: ", error);
-              //   });
-              // console.log(token);
-            } else {
-              // ask for permission again if blocked
-            }
-          })
-          .catch((e) => console.log(e));
-      }
+    if (!iOS()) {
+      const messaging = firebase.messaging();
+      messaging
+        .getToken({
+          vapidKey:
+            "BHed2bPnik__C-NU7efDYnHl3XsBvcTXkpgpdI0-HxM7RF8s9BRM8fJypYjQz4h10NzCl9MQVWX-OOyhX2z1KUc",
+        })
+        .then((token) => {
+          if (token) {
+            // firestoreDB
+            //   .collection("participants")
+            //   .doc(userInfo.uid)
+            //   .set(
+            //     {
+            //       notificationToken: token,
+            //     },
+            //     { merge: true }
+            //   )
+            //   .then(() => {
+            //     console.log("token added");
+            //   })
+            //   .catch((error) => {
+            //     console.error("error adding notification token: ", error);
+            //   });
+            // console.log(token);
+          } else {
+            // ask for permission again if blocked
+          }
+        })
+        .catch((e) => console.log(e));
     }
+    // if (loggedIn) {
+    // }
   }, [loggedIn, userInfo]);
 
   useEffect(() => {
