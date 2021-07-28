@@ -12,6 +12,7 @@ import { useCookies } from "react-cookie";
 import { firestoreDB } from ".";
 // import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import Admin from "./pages/Admin";
+import CssBaseline from "@material-ui/core/CssBaseline";
 // import Consent from "./pages/Consent";
 
 function App(props) {
@@ -169,6 +170,7 @@ function App(props) {
 
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Grid container direction="column" className={classes.app}>
         {/* {snackbar} */}
         {loading && (

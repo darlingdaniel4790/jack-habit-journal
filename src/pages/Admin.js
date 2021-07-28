@@ -1,11 +1,90 @@
-import { Button } from "@material-ui/core";
+import {
+  Button,
+  FormControl,
+  Grid,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import { parse } from "json2csv";
+import { useEffect, useState } from "react";
 import { firestoreDB } from "..";
+// import firebase from "firebase/app";
 
 const Admin = (props) => {
+  const [users, setUsers] = useState();
+  const [emailArray, setEmailArray] = useState();
+  const [responses, setResponses] = useState();
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    let tempUsers = [];
+    let tempResponses = [];
+    firestoreDB
+      .collection("participants")
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          tempUsers.push({
+            id: doc.data().id,
+            email: doc.data().email,
+          });
+        });
+        firestoreDB
+          .collection("responses")
+          // .where("date", "<=", date24)
+          // .where("email", "==", "ddarlingdaniel4790@gmail.com")
+          .orderBy("date", "desc")
+          .limit(tempUsers.length * 2)
+          .get()
+          .then((snapshot) => {
+            // console.log(snapshot.docs[0].data());
+            snapshot.forEach((doc) => {
+              // console.log(doc.data().date.toDate());
+              // if (doc.data().date.toDate() <= date24) console.log("yes");
+              // else console.log("no");
+              // console.log(doc.data().email);
+              tempResponses.push({
+                id: doc.data().id,
+                date: doc.data().date,
+              });
+            });
+            setResponses(tempResponses);
+          })
+          .catch((e) => {});
+
+        setUsers(tempUsers);
+      })
+      .catch((e) => {});
+
+    return () => {};
+  }, []);
+
+  // console.log(users, responses);
+  // console.log(responses, users, !emailArray);
+  if (responses && users && !emailArray) {
+    // console.log("here");
+    let date24 = new Date();
+    date24.setHours(date24.getHours() - 24);
+    let tempEmailArray = [];
+    users.forEach((user) => {
+      let addToSendList = true;
+      responses.forEach((response) => {
+        if (user.id === response.id && response.date.toDate() > date24) {
+          // don't send to this user
+          addToSendList = false;
+        }
+      });
+      if (addToSendList) {
+        tempEmailArray.push(user.email);
+      }
+    });
+    setEmailArray(tempEmailArray);
+    // console.log(tempEmailArray);
+  }
+
   const downloadData = () => {
     let objects = [];
-    console.log("data processing...");
+    // console.log("data processing...");
     firestoreDB
       .collection("responses")
       .get()
@@ -164,14 +243,86 @@ const Admin = (props) => {
     a.download = fileName;
     a.click();
   };
+
+  const copy = () => {
+    var copyText = document.querySelector("#emails");
+    copyText.select();
+    document.execCommand("copy");
+    setCopied(true);
+  };
+
+  useEffect(() => {
+    if (copied)
+      setTimeout(() => {
+        setCopied(false);
+      }, 3000);
+    return () => {};
+  }, [copied]);
+
   return (
     <>
-      <Button variant="outlined" onClick={downloadData}>
-        Download Latest Data
-      </Button>
-      <Button variant="outlined" onClick={props.handleLogout}>
-        Logout
-      </Button>
+      <Grid container direction="column">
+        <br />
+        {users && emailArray && (
+          <>
+            <Typography variant="h6">
+              {users && users.length} participants registered.{" "}
+              {emailArray && emailArray.length} of them haven't journaled in the
+              last 24 hours.
+            </Typography>
+            <FormControl fullWidth>
+              <TextField
+                multiline
+                rows={10}
+                rowsMax={20}
+                id="emails"
+                // value={emailArray&&emailArray.split(";")}
+                // onChange={handleChange}
+                defaultValue={emailArray && emailArray.join(";\n")}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </FormControl>
+          </>
+        )}
+        <br />
+        {emailArray && (
+          <Button variant="contained" onClick={copy}>
+            Copy addresses
+          </Button>
+        )}
+        {copied && (
+          <Typography
+            align="center"
+            variant="h5"
+            style={{
+              position: "fixed",
+              bottom: "50%",
+              top: "50%",
+              left: "0",
+              right: "0",
+              zIndex: "999",
+            }}
+          >
+            Emails copied to clipboard
+          </Typography>
+        )}
+
+        <Grid
+          direction="column"
+          container
+          style={{ position: "fixed", bottom: "0", zIndex: "999" }}
+        >
+          <Button variant="contained" onClick={downloadData}>
+            Download Latest Data
+          </Button>
+          <br />
+          <Button variant="contained" onClick={props.handleLogout}>
+            Logout
+          </Button>
+        </Grid>
+      </Grid>
     </>
   );
 };
